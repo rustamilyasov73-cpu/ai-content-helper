@@ -1,0 +1,159 @@
+"""Каталог запчастей: загрузка, поиск, категории."""
+
+from __future__ import annotations
+
+import json
+import re
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Iterable
+
+from config import PARTS_FILE
+
+CATEGORY_LABELS: dict[str, str] = {
+    "filters": "Фильтры",
+    "belts": "Ремни",
+    "bearings": "Подшипники",
+    "cutting": "Режущие элементы",
+    "hydraulics": "Гидравлика",
+    "electrics": "Электрика",
+    "chains": "Цепи",
+    "chassis": "Ходовая",
+    "cooling": "Охлаждение",
+}
+
+
+@dataclass(frozen=True)
+class Part:
+    id: str
+    sku: str
+    name: str
+    category: str
+    brand: str
+    compatible: list[str]
+    price: int
+    stock: int
+    unit: str
+    description: str
+
+    @property
+    def category_label(self) -> str:
+        return CATEGORY_LABELS.get(self.category, self.category)
+
+    @property
+    def in_stock(self) -> bool:
+        return self.stock > 0
+
+    def format_card(self) -> str:
+        stock_line = (
+            f"✅ В наличии: {self.stock} {self.unit}"
+            if self.in_stock
+            else "❌ Нет в наличии"
+        )
+        compatible = ", ".join(self.compatible)
+        price = f"{self.price:,}".replace(",", " ")
+        return (
+            f"<b>{self.name}</b>\n"
+            f"Артикул: <code>{self.sku}</code>\n"
+            f"Бренд: {self.brand}\n"
+            f"Категория: {self.category_label}\n"
+            f"Совместимость: {compatible}\n"
+            f"Цена: <b>{price} ₽</b> / {self.unit}\n"
+            f"{stock_line}\n\n"
+            f"{self.description}"
+        )
+
+
+def _normalize(text: str) -> str:
+    return re.sub(r"\s+", " ", text.strip().lower())
+
+
+def load_parts(path: Path | None = None) -> list[Part]:
+    file_path = path or PARTS_FILE
+    with open(file_path, encoding="utf-8") as f:
+        raw = json.load(f)
+    parts: list[Part] = []
+    for item in raw:
+        parts.append(
+            Part(
+                id=item["id"],
+                sku=item["sku"],
+                name=item["name"],
+                category=item["category"],
+                brand=item["brand"],
+                compatible=list(item.get("compatible", [])),
+                price=int(item["price"]),
+                stock=int(item["stock"]),
+                unit=item.get("unit", "шт"),
+                description=item.get("description", ""),
+            )
+        )
+    return parts
+
+
+class Catalog:
+    def __init__(self, parts: Iterable[Part] | None = None) -> None:
+        self._parts = list(parts) if parts is not None else load_parts()
+        self._by_id = {p.id: p for p in self._parts}
+        self._by_sku = {_normalize(p.sku): p for p in self._parts}
+
+    def all(self) -> list[Part]:
+        return list(self._parts)
+
+    def get(self, part_id: str) -> Part | None:
+        return self._by_id.get(part_id)
+
+    def categories(self) -> list[tuple[str, str, int]]:
+        counts: dict[str, int] = {}
+        for part in self._parts:
+            counts[part.category] = counts.get(part.category, 0) + 1
+        result = []
+        for key, label in CATEGORY_LABELS.items():
+            if key in counts:
+                result.append((key, label, counts[key]))
+        for key, count in counts.items():
+            if key not in CATEGORY_LABELS:
+                result.append((key, key, count))
+        return result
+
+    def by_category(self, category: str) -> list[Part]:
+        return [p for p in self._parts if p.category == category]
+
+    def search(self, query: str, limit: int = 10) -> list[Part]:
+        q = _normalize(query)
+        if not q:
+            return []
+
+        exact = self._by_sku.get(q)
+        if exact:
+            return [exact]
+
+        scored: list[tuple[int, Part]] = []
+        for part in self._parts:
+            haystack = _normalize(
+                " ".join(
+                    [
+                        part.sku,
+                        part.name,
+                        part.brand,
+                        part.category_label,
+                        " ".join(part.compatible),
+                        part.description,
+                    ]
+                )
+            )
+            score = 0
+            if q in _normalize(part.sku):
+                score += 100
+            if q in _normalize(part.name):
+                score += 50
+            if q in _normalize(part.brand):
+                score += 30
+            for token in q.split():
+                if token and token in haystack:
+                    score += 10
+            if score:
+                scored.append((score, part))
+
+        scored.sort(key=lambda item: (-item[0], item[1].name))
+        return [part for _, part in scored[:limit]]

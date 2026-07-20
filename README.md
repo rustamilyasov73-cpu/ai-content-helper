@@ -1,81 +1,86 @@
-# AI Content Helper
+# AgroParts
 
-Помощник для генерации контента: посты для Telegram, идеи, промпты и короткие тексты под ваш тон.
+Telegram-бот каталога запчастей для сельхозтехники: поиск по артикулу, категории, корзина и заявка менеджеру.
 
 ![Python](https://img.shields.io/badge/Python-3.11+-blue)
-![Content](https://img.shields.io/badge/AI-Content-ff69b4)
-![Telegram](https://img.shields.io/badge/Telegram-Bot-26A5E4)
+![aiogram](https://img.shields.io/badge/aiogram-3.x-blueviolet)
+![Agro](https://img.shields.io/badge/AgroParts-Catalog-2e7d32)
 
 ---
 
-## 🎯 Задача
+## Задача
 
-Ускорить создание контента для канала и клиентов:
-- генерация постов по теме;
-- несколько вариантов текста на выбор;
-- готовые шаблоны промптов;
-- единый стиль «коротко и по делу».
+Ускорить подбор и заказ запчастей для тракторов и комбайнов:
+- поиск по артикулу, названию и бренду;
+- просмотр категорий и карточек позиций;
+- корзина и оформление заявки;
+- опциональный AI-помощник по подбору.
 
 ---
 
-## 🧰 Стек технологий
+## Стек
 
 - **Python 3.11+**
-- **aiogram 3**
-- **OpenAI API**
-- **Шаблоны промптов** в `prompts/`
-- **python-dotenv**
+- **aiogram 3** — Telegram Bot API
+- **JSON-каталог** — `data/parts.json`
+- **OpenAI API** (опционально) — команда `/ask`
+- **python-dotenv** — конфигурация
 
 ---
 
-## 🧩 Функциональные блоки
+## Функции
 
-1. **Команда /post** — пост для Telegram по теме
-2. **Команда /ideas** — 5 идей для контента
-3. **Команда /prompt** — улучшить пользовательский промпт
-4. **Шаблоны** — системные инструкции под задачи
-5. **Тон голоса** — деловой / дружелюбный / экспертный
-
----
-
-## 🖼️ Скриншоты
-
-![Генерация поста](docs/screenshot-post.png)
-
-![Идеи для контента](docs/screenshot-ideas.png)
+1. **Каталог** — категории фильтров, ремней, гидравлики и др.
+2. **Поиск** — `/search` по артикулу, названию, бренду, модели
+3. **Карточка детали** — цена, остаток, совместимость
+4. **Корзина** — добавление, очистка, итоговая сумма
+5. **Заявка** — `/order` + уведомление оператору (`OPERATOR_CHAT_ID`)
+6. **AI-помощник** — `/ask` (работает и без ключа: отдаёт результаты поиска)
 
 ---
 
-## 🚀 Инструкция по запуску
+## Запуск
 
 ```bash
 git clone https://github.com/rustamilyasov73-cpu/ai-content-helper.git
 cd ai-content-helper
 python -m venv .venv
+# Windows:
 .venv\Scripts\activate
+# macOS/Linux:
+source .venv/bin/activate
 pip install -r requirements.txt
-copy .env.example .env
+cp .env.example .env   # Windows: copy .env.example .env
+```
+
+Заполните в `.env` минимум `BOT_TOKEN`.  
+`OPENAI_API_KEY` и `OPERATOR_CHAT_ID` — по желанию.
+
+```bash
 python bot.py
 ```
 
 Примеры:
-- `/post Как AI помогает малому бизнесу`
-- `/ideas канал про автоматизацию`
-- `/prompt напиши пост про ботов`
+- `/search RE507922`
+- `/search фильтр John Deere`
+- `/ask какой масляный фильтр на трактор 6R?`
 
 ---
 
-## 📁 Структура
+## Структура
 
 ```text
 ai-content-helper/
 ├── bot.py
 ├── config.py
-├── prompts/
-│   └── templates.py
+├── data/
+│   └── parts.json
+├── keyboards/
+│   └── menu.py
 ├── services/
+│   ├── catalog.py
+│   ├── cart.py
 │   └── llm.py
-├── docs/
 ├── requirements.txt
 ├── .env.example
 └── README.md
@@ -83,6 +88,13 @@ ai-content-helper/
 
 ---
 
-## 👤 Автор
+## Каталог
+
+Демо-данные в `data/parts.json` (John Deere, CLAAS, New Holland, Case IH, Krone, МТЗ и др.).  
+Для боевого использования замените файл на свой прайс с полями: `id`, `sku`, `name`, `category`, `brand`, `compatible`, `price`, `stock`, `unit`, `description`.
+
+---
+
+## Автор
 
 **Рустам** · [@Rust_prompt](https://t.me/Rust_prompt) · [GitHub](https://github.com/rustamilyasov73-cpu)

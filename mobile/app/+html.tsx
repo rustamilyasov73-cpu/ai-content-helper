@@ -1,4 +1,3 @@
-import { ScrollViewStyleReset } from 'expo-router/html';
 import type { ReactNode } from 'react';
 
 // This file is web-only and used to configure the root HTML for every
@@ -13,13 +12,7 @@ export default function Root({ children }: { children: ReactNode }) {
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
 
-        {/*
-          Disable body scrolling on web. This makes ScrollView components work closer to how they do on native.
-          However, body scrolling is often nice to have for mobile web. If you want to enable it, remove this line.
-        */}
-        <ScrollViewStyleReset />
-
-        {/* Using raw CSS styles as an escape-hatch to ensure the background color never flickers in dark-mode. */}
+        {/* Keep mobile browser scrolling usable for AgroParts web. */}
         <style dangerouslySetInnerHTML={{ __html: responsiveBackground }} />
         {/* Add any additional <head> elements that you want globally available on web... */}
       </head>
@@ -29,11 +22,24 @@ export default function Root({ children }: { children: ReactNode }) {
 }
 
 const responsiveBackground = `
+html, body, #root {
+  height: 100%;
+}
 body {
-  background-color: #fff;
+  background-color: #E8EEE9;
+  overflow: auto;
+  overscroll-behavior: none;
+}
+/* Expo tabs иногда оставляют absolute-слой на весь экран и блокируют клики */
+[data-testid="bottom-tab-bar-overlay"],
+div[style*="position: absolute"][style*="inset: 0"] {
+  pointer-events: none !important;
+}
+a[role="tab"], button, [role="button"], input, textarea {
+  pointer-events: auto !important;
 }
 @media (prefers-color-scheme: dark) {
   body {
-    background-color: #000;
+    background-color: #E8EEE9;
   }
 }`;

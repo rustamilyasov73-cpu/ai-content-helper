@@ -1,6 +1,5 @@
 import * as ImagePicker from 'expo-image-picker';
 import { Image } from 'expo-image';
-import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import {
   ActivityIndicator,
@@ -13,12 +12,12 @@ import {
 import { PartRow } from '../../src/components/PartRow';
 import { matchBySkuCandidates } from '../../src/catalog';
 import { useSettings } from '../../src/context/SettingsContext';
+import { go } from '../../src/nav';
 import { colors, spacing } from '../../src/theme';
 import type { Part, PhotoRecognition } from '../../src/types';
 import { recognizePartPhoto } from '../../src/vision';
 
 export default function PhotoScreen() {
-  const router = useRouter();
   const { apiKey } = useSettings();
   const [preview, setPreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -132,7 +131,7 @@ export default function PhotoScreen() {
         data={matches}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <PartRow part={item} onPress={() => router.push(`/part/${item.id}`)} />
+          <PartRow part={item} onPress={() => go(`/part/${item.id}`)} />
         )}
         ListHeaderComponent={
           matches.length ? <Text style={styles.listHeader}>Совпадения в каталоге</Text> : null

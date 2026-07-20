@@ -1,14 +1,14 @@
-import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { Stack, useLocalSearchParams } from 'expo-router';
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { categoryLabel, formatPrice, getPart } from '../../src/catalog';
 import { useCart } from '../../src/context/CartContext';
+import { go } from '../../src/nav';
 import { colors, spacing } from '../../src/theme';
 
 export default function PartScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const part = getPart(String(id));
   const { add } = useCart();
-  const router = useRouter();
 
   if (!part) {
     return (
@@ -27,7 +27,7 @@ export default function PartScreen() {
     add(part.id, 1);
     Alert.alert('В корзине', part.name, [
       { text: 'Продолжить' },
-      { text: 'В корзину', onPress: () => router.push('/(tabs)/cart') },
+      { text: 'В корзину', onPress: () => go('/cart') },
     ]);
   }
 

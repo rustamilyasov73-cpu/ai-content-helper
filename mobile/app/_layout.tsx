@@ -8,10 +8,17 @@ import {
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
+import { Platform } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
+import { enableScreens } from 'react-native-screens';
 import { CartProvider } from '../src/context/CartContext';
 import { SettingsProvider } from '../src/context/SettingsContext';
 import { colors } from '../src/theme';
+
+// На вебе absolute-экраны tabs перехватывают клики — отключаем.
+if (Platform.OS === 'web') {
+  enableScreens(false);
+}
 
 SplashScreen.preventAutoHideAsync().catch(() => undefined);
 

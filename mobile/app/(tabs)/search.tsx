@@ -1,12 +1,11 @@
 import { useMemo, useState } from 'react';
 import { FlatList, StyleSheet, Text, TextInput, View } from 'react-native';
-import { useRouter } from 'expo-router';
 import { PartRow } from '../../src/components/PartRow';
 import { searchParts } from '../../src/catalog';
+import { go } from '../../src/nav';
 import { colors, spacing } from '../../src/theme';
 
 export default function SearchScreen() {
-  const router = useRouter();
   const [query, setQuery] = useState('');
   const results = useMemo(() => searchParts(query), [query]);
 
@@ -30,7 +29,7 @@ export default function SearchScreen() {
           data={results}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
-            <PartRow part={item} onPress={() => router.push(`/part/${item.id}`)} />
+            <PartRow part={item} onPress={() => go(`/part/${item.id}`)} />
           )}
           ListEmptyComponent={<Text style={styles.hint}>Ничего не найдено</Text>}
         />

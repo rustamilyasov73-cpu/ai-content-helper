@@ -8,14 +8,13 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import { useRouter } from 'expo-router';
 import { QtyControls } from '../../src/components/QtyControls';
 import { formatPrice, getPart } from '../../src/catalog';
 import { useCart } from '../../src/context/CartContext';
+import { go } from '../../src/nav';
 import { colors, spacing } from '../../src/theme';
 
 export default function CartScreen() {
-  const router = useRouter();
   const { items, setQty, remove, totalPrice, placeOrder, orders } = useCart();
   const [phone, setPhone] = useState('');
   const [comment, setComment] = useState('');
@@ -46,7 +45,7 @@ export default function CartScreen() {
           if (!part) return null;
           return (
             <View style={styles.row}>
-              <Pressable style={{ flex: 1 }} onPress={() => router.push(`/part/${part.id}`)}>
+              <Pressable style={{ flex: 1 }} onPress={() => go(`/part/${part.id}`)}>
                 <Text style={styles.sku}>{part.sku}</Text>
                 <Text style={styles.name}>{part.name}</Text>
                 <Text style={styles.price}>{formatPrice(part.price * item.qty)}</Text>

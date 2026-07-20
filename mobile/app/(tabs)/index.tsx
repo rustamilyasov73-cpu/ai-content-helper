@@ -1,6 +1,5 @@
 import { useMemo, useState } from 'react';
 import { FlatList, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useRouter } from 'expo-router';
 import { PartRow } from '../../src/components/PartRow';
 import {
   allParts,
@@ -9,6 +8,7 @@ import {
   byCategory,
   categories,
 } from '../../src/catalog';
+import { go } from '../../src/nav';
 import { colors, spacing } from '../../src/theme';
 
 type Filter =
@@ -17,7 +17,6 @@ type Filter =
   | { type: 'brand'; name: string };
 
 export default function CatalogScreen() {
-  const router = useRouter();
   const [filter, setFilter] = useState<Filter>({ type: 'all' });
   const cats = useMemo(() => categories(), []);
   const brandList = useMemo(() => brands(), []);
@@ -63,7 +62,7 @@ export default function CatalogScreen() {
         data={parts}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <PartRow part={item} onPress={() => router.push(`/part/${item.id}`)} />
+          <PartRow part={item} onPress={() => go(`/part/${item.id}`)} />
         )}
         ListEmptyComponent={<Text style={styles.empty}>Ничего не найдено</Text>}
       />

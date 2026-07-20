@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
 dp = Dispatcher()
 catalog = Catalog()
 carts = CartStore()
-bot: Bot
+bot: Bot | None = None
 
 
 class Form(StatesGroup):
@@ -226,7 +226,7 @@ async def place_order(message: Message, note: str = "") -> None:
         f"{summary}"
     )
 
-    if OPERATOR_CHAT_ID:
+    if OPERATOR_CHAT_ID and bot is not None:
         try:
             await bot.send_message(
                 OPERATOR_CHAT_ID,

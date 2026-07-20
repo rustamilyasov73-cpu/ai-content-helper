@@ -6,3 +6,14 @@ __pycache__/
 logs/
 *.log
 .DS_Store
+node_modules/
+.expo/
+dist/
+web-build/
+*.jks
+*.p8
+*.p12
+*.mobileprovision
+*.orig.*
+data/1c/orders_outbox/*.json
+data/1c/orders_sent/*.json

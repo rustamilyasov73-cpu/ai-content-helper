@@ -1,83 +1,54 @@
 # AgroParts
 
-Telegram-бот каталога запчастей для сельхозтехники: поиск по артикулу, категории и бренды, корзина с количеством и заявка менеджеру.
+Мобильный каталог запчастей для сельхозтехники + обмен с **1С:Бухгалтерия**.
 
+![Expo](https://img.shields.io/badge/Expo-React%20Native-000020)
 ![Python](https://img.shields.io/badge/Python-3.11+-blue)
-![aiogram](https://img.shields.io/badge/aiogram-3.x-blueviolet)
+![1C](https://img.shields.io/badge/1C-Бухгалтерия-e0a800)
 ![Agro](https://img.shields.io/badge/AgroParts-Catalog-2e7d32)
 
 ---
 
-## Задача
-
-Ускорить подбор и заказ запчастей для тракторов и комбайнов:
-- поиск по артикулу, названию и бренду;
-- **распознавание бирок/узлов/артикулов по фото**;
-- просмотр категорий и брендов;
-- корзина с изменением количества;
-- заявка с телефоном и комментарием;
-- опциональный AI-помощник по подбору.
-
----
-
-## Стек
-
-- **Python 3.11+**
-- **aiogram 3** — Telegram Bot API + FSM
-- **JSON-каталог** — `data/parts.json`
-- **OpenAI API** — `/ask` и **Vision OCR** для фото бирок (`gpt-4o-mini`)
-- **python-dotenv** — конфигурация
-
----
-
-## Функции
-
-1. **Каталог** — категории и бренды
-2. **Поиск** — `/search` по артикулу, названию, бренду, модели
-3. **Фото** — отправьте снимок бирки/шильдика/упаковки (`/photo` или кнопка 📷)
-4. **Карточка детали** — цена, остаток, совместимость
-5. **Корзина** — ➕/➖, удаление позиции, проверка остатков
-6. **Заявка** — телефон, комментарий, журнал `logs/orders.jsonl`
-7. **Уведомление оператору** — `OPERATOR_CHAT_ID`
-8. **AI-помощник** — `/ask`
-9. **Обновление каталога** — `/reload`
-
----
-
-## Запуск
+## Приложение на телефоне (Android Chrome)
 
 ```bash
-git clone https://github.com/rustamilyasov73-cpu/ai-content-helper.git
-cd ai-content-helper
-python -m venv .venv
-# Windows:
-.venv\Scripts\activate
-# macOS/Linux:
-source .venv/bin/activate
+cd mobile
+node scripts/serve-web.js
+# в другом терминале:
+python api/server.py
+```
+
+Откройте http://localhost:8090 (или туннель) в Chrome на телефоне.
+
+Сейчас в каталоге **80+ позиций**, 14 категорий, поля учёта 1С (код, НДС, штрихкод, склад, аналоги…).
+
+Подробнее: [`mobile/README.md`](mobile/README.md)
+
+---
+
+## Интеграция с 1С
+
+См. [`docs/1C.md`](docs/1C.md)
+
+```bash
+# импорт номенклатуры из выгрузки 1С
+python scripts/sync_1c.py import-file data/1c/nomenclature.sample.json
+
+# заявки из приложения → data/1c/orders_outbox/
+# отправка в HTTP-сервис 1С:
+python scripts/sync_1c.py push-orders https://YOUR-1C/hs/agroparts/orders --token SECRET
+```
+
+---
+
+## Telegram-бот (опционально)
+
+```bash
 pip install -r requirements.txt
-cp .env.example .env   # Windows: copy .env.example .env
-```
-
-В `.env` укажите `BOT_TOKEN`.  
-Для распознавания фото обязателен `OPENAI_API_KEY` (модель с vision, по умолчанию `gpt-4o-mini`).  
-`OPERATOR_CHAT_ID` — по желанию.
-
-```bash
+cp .env.example .env
 python bot.py
-```
-
-Тесты:
-
-```bash
-pip install pytest
 pytest -q
 ```
-
-Примеры:
-- `/search RE507922`
-- просто пришлите **фото бирки** с артикулом
-- `/search фильтр John Deere`
-- `/ask какой масляный фильтр на трактор 6R?`
 
 ---
 
@@ -85,30 +56,15 @@ pytest -q
 
 ```text
 ai-content-helper/
-├── bot.py
-├── config.py
-├── data/
-│   └── parts.json
-├── keyboards/
-│   └── menu.py
-├── services/
-│   ├── catalog.py
-│   ├── cart.py
-│   ├── orders.py
-│   ├── vision.py
-│   └── llm.py
-├── tests/
-├── requirements.txt
-├── .env.example
-└── README.md
+├── mobile/www/          ← веб-приложение для телефона
+├── api/server.py        ← API каталога и заявок
+├── services/onec_sync.py
+├── scripts/sync_1c.py
+├── data/parts.json
+├── data/1c/             ← обмен с 1С
+├── docs/1C.md
+└── bot.py
 ```
-
----
-
-## Каталог
-
-Демо-данные в `data/parts.json` (John Deere, CLAAS, New Holland, Case IH, Krone, МТЗ и др.).  
-Для боевого использования замените файл на свой прайс с полями: `id`, `sku`, `name`, `category`, `brand`, `compatible`, `price`, `stock`, `unit`, `description`. Затем `/reload`.
 
 ---
 

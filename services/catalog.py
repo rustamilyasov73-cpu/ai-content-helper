@@ -20,6 +20,11 @@ CATEGORY_LABELS: dict[str, str] = {
     "chains": "Цепи",
     "chassis": "Ходовая",
     "cooling": "Охлаждение",
+    "engine": "Двигатель",
+    "transmission": "Трансмиссия",
+    "seals": "Уплотнения",
+    "lighting": "Освещение",
+    "cabin": "Кабина",
 }
 
 

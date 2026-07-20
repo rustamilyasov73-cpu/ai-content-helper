@@ -65,7 +65,14 @@ class Part:
 
 
 def _normalize(text: str) -> str:
-    return re.sub(r"\s+", " ", text.strip().lower())
+    text = text.strip().lower().replace("ё", "е")
+    text = re.sub(r"[\s\-_/.,;:]+", " ", text)
+    return text.strip()
+
+
+def _compact(text: str) -> str:
+    """Артикул без разделителей: RE-507.922 → re507922."""
+    return re.sub(r"[^a-z0-9а-я]+", "", _normalize(text))
 
 
 def load_parts(path: Path | None = None) -> list[Part]:
@@ -96,6 +103,7 @@ class Catalog:
         self._parts: list[Part] = []
         self._by_id: dict[str, Part] = {}
         self._by_sku: dict[str, Part] = {}
+        self._by_sku_compact: dict[str, Part] = {}
         if parts is not None:
             self._set_parts(list(parts))
         else:
@@ -105,6 +113,7 @@ class Catalog:
         self._parts = parts
         self._by_id = {p.id: p for p in self._parts}
         self._by_sku = {_normalize(p.sku): p for p in self._parts}
+        self._by_sku_compact = {_compact(p.sku): p for p in self._parts}
 
     def reload(self, path: Path | None = None) -> int:
         self._set_parts(load_parts(path))
@@ -147,12 +156,17 @@ class Catalog:
         if not q:
             return []
 
-        exact = self._by_sku.get(q)
+        q_compact = _compact(query)
+        exact = self._by_sku.get(q) or self._by_sku_compact.get(q_compact)
         if exact:
             return [exact]
 
         scored: list[tuple[int, Part]] = []
         for part in self._parts:
+            sku_n = _normalize(part.sku)
+            sku_c = _compact(part.sku)
+            name_n = _normalize(part.name)
+            brand_n = _normalize(part.brand)
             haystack = _normalize(
                 " ".join(
                     [
@@ -166,15 +180,24 @@ class Catalog:
                 )
             )
             score = 0
-            if q in _normalize(part.sku):
+            if q == sku_n or q_compact == sku_c:
+                score += 120
+            elif q in sku_n or (q_compact and q_compact in sku_c):
                 score += 100
-            if q in _normalize(part.name):
+            elif sku_c and q_compact and (sku_c in q_compact or q_compact in sku_c):
+                # OCR часто дописывает/обрезает символы
+                if abs(len(sku_c) - len(q_compact)) <= 2:
+                    score += 80
+            if q in name_n:
                 score += 50
-            if q in _normalize(part.brand):
+            if q in brand_n:
                 score += 30
             for token in q.split():
                 if token and token in haystack:
                     score += 10
+                token_c = _compact(token)
+                if token_c and token_c in sku_c:
+                    score += 40
             if score:
                 scored.append((score, part))
 

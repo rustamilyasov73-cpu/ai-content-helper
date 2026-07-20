@@ -6,7 +6,7 @@ import asyncio
 import logging
 
 from aiogram import Bot, Dispatcher, F
-from aiogram.filters import Command, CommandStart
+from aiogram.filters import Command, CommandObject, CommandStart
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import CallbackQuery, Message
@@ -26,6 +26,11 @@ from services.cart import CartStore
 from services.catalog import Catalog
 from services.llm import advise
 from services.orders import save_order
+from services.vision import (
+    format_recognition,
+    match_recognition,
+    recognize_part_photo,
+)
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -41,6 +46,7 @@ class Form(StatesGroup):
     waiting_ask = State()
     waiting_phone = State()
     waiting_order_note = State()
+    waiting_photo = State()
 
 
 HELP_TEXT = (
@@ -50,15 +56,23 @@ HELP_TEXT = (
     "/catalog — категории и бренды\n"
     "/brands — список брендов\n"
     "/search &lt;запрос&gt; — поиск по артикулу, названию, бренду\n"
-    "/cart — корзина (количество можно менять кнопками)\n"
+    "/photo — прислать фото бирки/узла/артикула\n"
+    "/cart — корзина\n"
     "/order — оформить заявку\n"
-    "/ask &lt;вопрос&gt; — AI-помощник по подбору\n"
-    "/reload — обновить каталог из файла\n"
-    "/help — эта справка\n\n"
+    "/ask &lt;вопрос&gt; — AI-помощник\n"
+    "/reload — обновить каталог\n"
+    "/help — справка\n\n"
+    "<b>Фото:</b> просто отправьте снимок бирки, шильдика или упаковки — "
+    "бот распознает артикул и найдёт позицию в каталоге.\n\n"
     "Примеры:\n"
     "<code>/search RE507922</code>\n"
-    "<code>/search фильтр John Deere</code>\n"
-    "<code>/ask какой масляный фильтр на 6R?</code>"
+    "<code>/search фильтр John Deere</code>"
+)
+
+PHOTO_HINT = (
+    "📷 Пришлите фото бирки, шильдика, упаковки или узла с номером.\n"
+    "Советы: ближе к коду, без бликов, артикул читаемый.\n"
+    "Нужен <code>OPENAI_API_KEY</code> в .env (vision-модель)."
 )
 
 
@@ -75,22 +89,12 @@ async def show_catalog_root(message: Message) -> None:
     )
 
 
-async def show_categories(message: Message) -> None:
-    await message.answer(
-        "Категории:",
-        reply_markup=categories_keyboard(catalog.categories()),
-    )
-
-
 async def show_brands(message: Message) -> None:
     brands = catalog.brands()
     if not brands:
         await message.answer("Бренды не найдены.")
         return
-    await message.answer(
-        "Бренды:",
-        reply_markup=brands_keyboard(brands),
-    )
+    await message.answer("Бренды:", reply_markup=brands_keyboard(brands))
 
 
 async def show_cart(target: Message | CallbackQuery) -> None:
@@ -131,10 +135,7 @@ async def begin_order(message: Message, state: FSMContext) -> None:
     cart = carts.get(user.id)
     problems = cart.validate_stock()
     if problems:
-        await message.answer(
-            "⚠ " + "; ".join(problems),
-            parse_mode="HTML",
-        )
+        await message.answer("⚠ " + "; ".join(problems), parse_mode="HTML")
     if cart.is_empty():
         await message.answer("Корзина пуста. Добавьте позиции из каталога.")
         return
@@ -145,41 +146,85 @@ async def begin_order(message: Message, state: FSMContext) -> None:
     )
 
 
+async def download_image(message: Message) -> tuple[bytes, str] | None:
+    """Скачать фото или image-документ из сообщения."""
+    if bot is None:
+        return None
+    if message.photo:
+        buf = await bot.download(message.photo[-1])
+        return buf.read(), "image/jpeg"
+    if message.document and (message.document.mime_type or "").startswith("image/"):
+        buf = await bot.download(message.document)
+        return buf.read(), message.document.mime_type or "image/jpeg"
+    return None
+
+
+async def process_part_photo(message: Message) -> None:
+    downloaded = await download_image(message)
+    if not downloaded:
+        await message.answer("Не удалось получить изображение. Пришлите фото ещё раз.")
+        return
+
+    image_bytes, mime = downloaded
+    wait = await message.answer("🔍 Распознаю бирку/артикул на фото…")
+    recognition = await recognize_part_photo(image_bytes, mime_type=mime)
+
+    if recognition.error:
+        await wait.edit_text(recognition.error, parse_mode="HTML")
+        return
+
+    matches = match_recognition(recognition, catalog)
+    await wait.edit_text(
+        format_recognition(recognition, matches),
+        parse_mode="HTML",
+    )
+
+    if not matches:
+        return
+    if len(matches) == 1:
+        await show_part(message, matches[0].id)
+        return
+    await message.answer(
+        "Выберите позицию из распознанных:",
+        reply_markup=parts_keyboard(matches, back_callback="catalog"),
+    )
+
+
 @dp.message(CommandStart())
 async def cmd_start(message: Message, state: FSMContext) -> None:
     await state.clear()
     await message.answer(
         "Добро пожаловать в <b>AgroParts</b>!\n"
         "Оригинальные и аналоговые запчасти для тракторов и комбайнов.\n\n"
-        "Откройте каталог, бренды или найдите деталь по артикулу.",
+        "Можно искать текстом или <b>присылать фото бирки/артикула</b>.",
         reply_markup=main_menu(),
         parse_mode="HTML",
     )
 
 
 @dp.message(Command("help"))
-@dp.message(F.text == "ℹ️ Помощь")
+@dp.message(F.text.contains("Помощь"))
 async def cmd_help(message: Message, state: FSMContext) -> None:
     await state.clear()
     await message.answer(HELP_TEXT, parse_mode="HTML", reply_markup=main_menu())
 
 
 @dp.message(Command("catalog"))
-@dp.message(F.text == "📦 Каталог")
+@dp.message(F.text.contains("Каталог"))
 async def cmd_catalog(message: Message, state: FSMContext) -> None:
     await state.clear()
     await show_catalog_root(message)
 
 
 @dp.message(Command("brands"))
-@dp.message(F.text == "🏷 Бренды")
+@dp.message(F.text.contains("Бренды"))
 async def cmd_brands(message: Message, state: FSMContext) -> None:
     await state.clear()
     await show_brands(message)
 
 
 @dp.message(Command("cart"))
-@dp.message(F.text == "🛒 Корзина")
+@dp.message(F.text.contains("Корзина"))
 async def cmd_cart(message: Message, state: FSMContext) -> None:
     await state.clear()
     await show_cart(message)
@@ -192,9 +237,20 @@ async def cmd_reload(message: Message, state: FSMContext) -> None:
     await message.answer(f"Каталог обновлён. Позиций: {count}")
 
 
+@dp.message(Command("photo"))
+@dp.message(F.text.contains("Фото"))
+async def cmd_photo(message: Message, state: FSMContext) -> None:
+    await state.set_state(Form.waiting_photo)
+    await message.answer(PHOTO_HINT, parse_mode="HTML")
+
+
 @dp.message(Command("search"))
-async def cmd_search(message: Message, state: FSMContext) -> None:
-    query = (message.text or "").removeprefix("/search").strip()
+async def cmd_search(
+    message: Message,
+    command: CommandObject,
+    state: FSMContext,
+) -> None:
+    query = (command.args or "").strip()
     if not query:
         await state.set_state(Form.waiting_search)
         await message.answer("Введите артикул, название или бренд:")
@@ -203,15 +259,19 @@ async def cmd_search(message: Message, state: FSMContext) -> None:
     await reply_search(message, query)
 
 
-@dp.message(F.text == "🔍 Поиск")
+@dp.message(F.text.contains("Поиск"))
 async def btn_search(message: Message, state: FSMContext) -> None:
     await state.set_state(Form.waiting_search)
-    await message.answer("Введите артикул, название или бренд:")
+    await message.answer("Введите артикул, название или бренд (или просто пришлите фото):")
 
 
 @dp.message(Command("ask"))
-async def cmd_ask(message: Message, state: FSMContext) -> None:
-    query = (message.text or "").removeprefix("/ask").strip()
+async def cmd_ask(
+    message: Message,
+    command: CommandObject,
+    state: FSMContext,
+) -> None:
+    query = (command.args or "").strip()
     if not query:
         await state.set_state(Form.waiting_ask)
         await message.answer("Опишите технику и какую деталь ищете:")
@@ -221,7 +281,7 @@ async def cmd_ask(message: Message, state: FSMContext) -> None:
     await message.answer(await advise(query, catalog), parse_mode="HTML")
 
 
-@dp.message(F.text == "🤖 Помощник")
+@dp.message(F.text.contains("Помощник"))
 async def btn_ask(message: Message, state: FSMContext) -> None:
     await state.set_state(Form.waiting_ask)
     await message.answer("Опишите технику и какую деталь ищете:")
@@ -236,7 +296,7 @@ async def reply_search(message: Message, query: str) -> None:
     results = catalog.search(query)
     if not results:
         await message.answer(
-            "Ничего не найдено. Попробуйте другой артикул или откройте /catalog."
+            "Ничего не найдено. Пришлите фото бирки или откройте /catalog."
         )
         return
     if len(results) == 1:
@@ -246,6 +306,12 @@ async def reply_search(message: Message, query: str) -> None:
         f"Найдено: {len(results)}. Выберите позицию:",
         reply_markup=parts_keyboard(results, back_callback="catalog"),
     )
+
+
+@dp.message(Form.waiting_search, F.photo | F.document)
+async def on_search_photo(message: Message, state: FSMContext) -> None:
+    await state.clear()
+    await process_part_photo(message)
 
 
 @dp.message(Form.waiting_search)
@@ -263,6 +329,17 @@ async def on_ask_query(message: Message, state: FSMContext) -> None:
     await state.clear()
     await message.answer("Подбираю варианты…")
     await message.answer(await advise(message.text, catalog), parse_mode="HTML")
+
+
+@dp.message(Form.waiting_photo, F.photo | F.document)
+async def on_waiting_photo(message: Message, state: FSMContext) -> None:
+    await state.clear()
+    await process_part_photo(message)
+
+
+@dp.message(Form.waiting_photo)
+async def on_waiting_photo_text(message: Message, state: FSMContext) -> None:
+    await message.answer("Нужно именно фото. Или отмена: /start")
 
 
 @dp.message(Form.waiting_phone, F.contact)
@@ -458,7 +535,6 @@ async def cb_qty(callback: CallbackQuery) -> None:
         return
     user_id = callback.from_user.id if callback.from_user else 0
     cart = carts.get(user_id)
-    # подтянуть актуальные данные детали из каталога
     part = catalog.get(part_id)
     if part and part_id in cart.items:
         cart.items[part_id].part = part
@@ -493,9 +569,24 @@ async def cb_order(callback: CallbackQuery, state: FSMContext) -> None:
     await callback.answer()
 
 
+@dp.message(F.photo | F.document)
+async def on_any_photo(message: Message, state: FSMContext) -> None:
+    """Любое фото вне спец. состояний — пробуем распознать артикул."""
+    current = await state.get_state()
+    if current in {
+        Form.waiting_phone.state,
+        Form.waiting_order_note.state,
+        Form.waiting_ask.state,
+    }:
+        return
+    if message.document and not (message.document.mime_type or "").startswith("image/"):
+        return
+    await state.clear()
+    await process_part_photo(message)
+
+
 @dp.message()
 async def fallback(message: Message, state: FSMContext) -> None:
-    """Свободный текст — пробуем поиск."""
     if not message.text:
         return
     current = await state.get_state()

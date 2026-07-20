@@ -18,8 +18,9 @@ def main_menu() -> ReplyKeyboardMarkup:
     return ReplyKeyboardMarkup(
         keyboard=[
             [KeyboardButton(text="📦 Каталог"), KeyboardButton(text="🏷 Бренды")],
-            [KeyboardButton(text="🔍 Поиск"), KeyboardButton(text="🛒 Корзина")],
-            [KeyboardButton(text="🤖 Помощник"), KeyboardButton(text="ℹ️ Помощь")],
+            [KeyboardButton(text="🔍 Поиск"), KeyboardButton(text="📷 Фото")],
+            [KeyboardButton(text="🛒 Корзина"), KeyboardButton(text="🤖 Помощник")],
+            [KeyboardButton(text="ℹ️ Помощь")],
         ],
         resize_keyboard=True,
     )

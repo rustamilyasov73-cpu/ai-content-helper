@@ -11,6 +11,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import logging
 import re
@@ -198,10 +199,10 @@ def normalize_part(item: dict[str, Any], *, index: int) -> dict[str, Any]:
         _first(item, "name", "Name", "Наименование", "наименование", "Description", "description")
         or sku
     ).strip()
-    part_id = str(_first(item, "id", "ID", "Ref", "ref", "УникальныйИдентификатор") or "").strip()
-    if not part_id:
-        compact = re.sub(r"[^a-zA-Z0-9]+", "", sku).lower() or f"{index:04d}"
-        part_id = f"1c-{compact}"[:64]
+    # Короткие стабильные id — Telegram callback_data ограничена 64 байтами
+    raw_ref = str(_first(item, "id", "ID", "Ref", "ref", "УникальныйИдентификатор") or "").strip()
+    digest = hashlib.sha1(f"{sku}|{raw_ref}".encode("utf-8")).hexdigest()[:10]
+    part_id = f"p{digest}"
 
     brand = str(_first(item, "brand", "Brand", "Бренд", "бренд", "Производитель") or "1С").strip()
     category = normalize_category(_first(item, "category", "Category", "Категория", "ВидНоменклатуры"))

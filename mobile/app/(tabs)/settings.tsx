@@ -1,14 +1,18 @@
 import { useEffect, useState } from 'react';
 import { Alert, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { refreshCatalogFromApi } from '../../src/api';
+import { useParts } from '../../src/catalog';
 import { useSettings } from '../../src/context/SettingsContext';
 import { colors, spacing } from '../../src/theme';
 
 export default function SettingsScreen() {
+  const parts = useParts();
   const { apiKey, apiBaseUrl, apiToken, setApiKey, setApiBaseUrl, setApiToken, ready } =
     useSettings();
   const [draftKey, setDraftKey] = useState('');
   const [draftUrl, setDraftUrl] = useState('');
   const [draftToken, setDraftToken] = useState('');
+  const [syncing, setSyncing] = useState(false);
 
   useEffect(() => {
     if (!ready) return;
@@ -24,15 +28,37 @@ export default function SettingsScreen() {
     Alert.alert('Сохранено', 'Настройки сохранены на этом устройстве');
   }
 
+  async function syncCatalog() {
+    const url = draftUrl.trim() || apiBaseUrl;
+    if (!url) {
+      Alert.alert('Каталог', 'Сначала укажите URL API');
+      return;
+    }
+    await setApiBaseUrl(url);
+    await setApiToken(draftToken);
+    setSyncing(true);
+    try {
+      const result = await refreshCatalogFromApi(url, draftToken || apiToken);
+      if (!result.ok) {
+        Alert.alert('Ошибка', result.message || 'Не удалось обновить каталог');
+        return;
+      }
+      Alert.alert('Каталог обновлён', `Позиций: ${result.count ?? parts.length}`);
+    } catch (error) {
+      Alert.alert('Ошибка', error instanceof Error ? error.message : 'Сеть недоступна');
+    } finally {
+      setSyncing(false);
+    }
+  }
+
   return (
     <View style={styles.screen}>
-      <Text style={styles.title}>AgroParts на телефоне</Text>
+      <Text style={styles.title}>AgroParts</Text>
       <Text style={styles.text}>
-        Каталог и корзина работают офлайн. Для распознавания бирок — OpenAI ключ. Для отправки
-        заявок в 1С:Бухгалтерия — URL API-шлюза AgroParts.
+        Локальный каталог: {parts.length} поз. Обновите с сервера после синхронизации 1С.
       </Text>
 
-      <Text style={styles.label}>URL API (1С через AgroParts)</Text>
+      <Text style={styles.label}>URL API (AgroParts → 1С)</Text>
       <TextInput
         value={draftUrl}
         onChangeText={setDraftUrl}
@@ -43,7 +69,7 @@ export default function SettingsScreen() {
         style={styles.input}
       />
 
-      <Text style={styles.label}>API Token (если задан на сервере)</Text>
+      <Text style={styles.label}>API Token</Text>
       <TextInput
         value={draftToken}
         onChangeText={setDraftToken}
@@ -55,7 +81,7 @@ export default function SettingsScreen() {
         style={styles.input}
       />
 
-      <Text style={styles.label}>OpenAI API Key</Text>
+      <Text style={styles.label}>OpenAI API Key (фото)</Text>
       <TextInput
         value={draftKey}
         onChangeText={setDraftKey}
@@ -66,17 +92,23 @@ export default function SettingsScreen() {
         secureTextEntry
         style={styles.input}
       />
-      <Pressable style={styles.primary} onPress={save}>
+
+      <Pressable style={styles.primary} onPress={() => void save()}>
         <Text style={styles.primaryText}>Сохранить</Text>
+      </Pressable>
+      <Pressable style={styles.secondary} onPress={() => void syncCatalog()} disabled={syncing}>
+        <Text style={styles.secondaryText}>
+          {syncing ? 'Обновление…' : 'Обновить каталог с сервера'}
+        </Text>
       </Pressable>
 
       <View style={styles.box}>
-        <Text style={styles.boxTitle}>1С:Бухгалтерия</Text>
+        <Text style={styles.boxTitle}>Как подключить 1С</Text>
         <Text style={styles.text}>
-          1. На сервере: python api_server.py{'\n'}
-          2. В .env включите ONEC_ENABLED и ONEC_BASE_URL{'\n'}
-          3. Укажите здесь IP сервера с портом 8080{'\n'}
-          4. Заявки из корзины уйдут в 1С
+          1. python sync_onec.py — номенклатура из 1С{'\n'}
+          2. python api_server.py — шлюз :8080{'\n'}
+          3. Укажите IP сервера выше{'\n'}
+          4. «Обновить каталог» и оформляйте заявки
         </Text>
       </View>
     </View>
@@ -127,6 +159,19 @@ const styles = StyleSheet.create({
     color: colors.white,
     fontFamily: 'DMSans_700Bold',
     fontSize: 16,
+  },
+  secondary: {
+    backgroundColor: colors.surface,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: colors.line,
+    paddingVertical: 14,
+    alignItems: 'center',
+  },
+  secondaryText: {
+    color: colors.ink,
+    fontFamily: 'DMSans_700Bold',
+    fontSize: 15,
   },
   box: {
     marginTop: spacing.md,

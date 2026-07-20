@@ -206,28 +206,28 @@ async def cmd_start(message: Message, state: FSMContext) -> None:
 
 
 @dp.message(Command("help"))
-@dp.message(F.text.contains("Помощь"))
+@dp.message(F.text.in_({"ℹ️ Помощь", "Помощь"}))
 async def cmd_help(message: Message, state: FSMContext) -> None:
     await state.clear()
     await message.answer(HELP_TEXT, parse_mode="HTML", reply_markup=main_menu())
 
 
 @dp.message(Command("catalog"))
-@dp.message(F.text.contains("Каталог"))
+@dp.message(F.text.in_({"📦 Каталог", "Каталог"}))
 async def cmd_catalog(message: Message, state: FSMContext) -> None:
     await state.clear()
     await show_catalog_root(message)
 
 
 @dp.message(Command("brands"))
-@dp.message(F.text.contains("Бренды"))
+@dp.message(F.text.in_({"🏷 Бренды", "Бренды"}))
 async def cmd_brands(message: Message, state: FSMContext) -> None:
     await state.clear()
     await show_brands(message)
 
 
 @dp.message(Command("cart"))
-@dp.message(F.text.contains("Корзина"))
+@dp.message(F.text.in_({"🛒 Корзина", "Корзина"}))
 async def cmd_cart(message: Message, state: FSMContext) -> None:
     await state.clear()
     await show_cart(message)
@@ -275,7 +275,7 @@ async def cmd_sync1c(message: Message, state: FSMContext) -> None:
 
 
 @dp.message(Command("photo"))
-@dp.message(F.text.contains("Фото"))
+@dp.message(F.text.in_({"📷 Фото", "Фото"}))
 async def cmd_photo(message: Message, state: FSMContext) -> None:
     await state.set_state(Form.waiting_photo)
     await message.answer(PHOTO_HINT, parse_mode="HTML")
@@ -296,7 +296,7 @@ async def cmd_search(
     await reply_search(message, query)
 
 
-@dp.message(F.text.contains("Поиск"))
+@dp.message(F.text.in_({"🔍 Поиск", "Поиск"}))
 async def btn_search(message: Message, state: FSMContext) -> None:
     await state.set_state(Form.waiting_search)
     await message.answer("Введите артикул, название или бренд (или просто пришлите фото):")
@@ -318,7 +318,7 @@ async def cmd_ask(
     await message.answer(await advise(query, catalog), parse_mode="HTML")
 
 
-@dp.message(F.text.contains("Помощник"))
+@dp.message(F.text.in_({"🤖 Помощник", "Помощник"}))
 async def btn_ask(message: Message, state: FSMContext) -> None:
     await state.set_state(Form.waiting_ask)
     await message.answer("Опишите технику и какую деталь ищете:")
@@ -456,7 +456,8 @@ async def place_order(message: Message, note: str = "", phone: str = "") -> None
         )
         if onec_result is not None:
             if onec_result.skipped:
-                onec_line = "\n\n1С: локально (интеграция выключена)"
+                onec_line = f"\n\n1С: {onec_result.message}"
+                operator_text += f"\n\n1С: {onec_result.message}"
             elif onec_result.ok:
                 num = f" №{onec_result.number}" if onec_result.number else ""
                 onec_line = f"\n\n1С: заказ{num} принят"

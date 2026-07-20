@@ -2,11 +2,11 @@ import { useMemo, useState } from 'react';
 import { FlatList, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { PartRow } from '../../src/components/PartRow';
 import {
-  allParts,
   brands,
   byBrand,
   byCategory,
   categories,
+  useParts,
 } from '../../src/catalog';
 import { go } from '../../src/nav';
 import { colors, spacing } from '../../src/theme';
@@ -18,14 +18,15 @@ type Filter =
 
 export default function CatalogScreen() {
   const [filter, setFilter] = useState<Filter>({ type: 'all' });
-  const cats = useMemo(() => categories(), []);
-  const brandList = useMemo(() => brands(), []);
+  const all = useParts();
+  const cats = useMemo(() => categories(), [all]);
+  const brandList = useMemo(() => brands(), [all]);
 
   const parts = useMemo(() => {
     if (filter.type === 'category') return byCategory(filter.key);
     if (filter.type === 'brand') return byBrand(filter.name);
-    return allParts();
-  }, [filter]);
+    return all;
+  }, [filter, all]);
 
   return (
     <View style={styles.screen}>

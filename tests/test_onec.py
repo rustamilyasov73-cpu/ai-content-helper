@@ -34,6 +34,8 @@ def test_normalize_part_russian_fields():
     assert part["price"] == 2890
     assert part["stock"] == 10
     assert part["compatible"] == ["6R", "7R"]
+    assert part["id"].startswith("p")
+    assert len(part["id"]) <= 16
 
 
 def test_build_order_payload():
@@ -161,3 +163,34 @@ def test_save_order_with_onec_disabled(tmp_path, monkeypatch):
     assert record["items"][0]["sku"] == "RE507922"
     assert onec_result is not None
     assert onec_result.skipped
+
+
+def test_order_idempotent_by_external_id(tmp_path, monkeypatch):
+    from services import orders as orders_mod
+    from services.orders import save_order_from_items
+
+    monkeypatch.setattr(orders_mod, "ORDERS_DIR", tmp_path)
+    monkeypatch.setattr(orders_mod, "ORDERS_FILE", tmp_path / "orders.jsonl")
+    monkeypatch.setattr(onec, "ONEC_ENABLED", False)
+    monkeypatch.setattr(onec, "ONEC_BASE_URL", "")
+
+    items = [{"sku": "RE507922", "name": "Фильтр", "qty": 1, "price": 100}]
+    _p1, r1, _o1, dup1 = save_order_from_items(
+        user_id="m1",
+        full_name="A",
+        username="",
+        items=items,
+        phone="+7000",
+        external_id="ord-dup-1",
+    )
+    _p2, r2, _o2, dup2 = save_order_from_items(
+        user_id="m1",
+        full_name="A",
+        username="",
+        items=items,
+        phone="+7000",
+        external_id="ord-dup-1",
+    )
+    assert dup1 is False
+    assert dup2 is True
+    assert r1["external_id"] == r2["external_id"] == "ord-dup-1"

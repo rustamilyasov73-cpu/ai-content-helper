@@ -10,7 +10,7 @@ from typing import Any
 
 from config import BASE_DIR
 from services.cart import Cart
-from services.onec import OneCOrderResult, build_order_payload, push_order, push_order_async
+from services.onec import OneCOrderResult, build_order_payload, push_order
 
 logger = logging.getLogger(__name__)
 
@@ -67,6 +67,72 @@ def append_order(record: dict[str, Any]) -> Path:
     return ORDERS_FILE
 
 
+def find_order_by_external_id(external_id: str) -> dict[str, Any] | None:
+    if not external_id or not ORDERS_FILE.exists():
+        return None
+    found: dict[str, Any] | None = None
+    with open(ORDERS_FILE, encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                row = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if row.get("type") == "onec_status":
+                continue
+            if str(row.get("external_id") or "") == external_id:
+                found = row
+    return found
+
+
+def _attach_onec(
+    record: dict[str, Any],
+    *,
+    phone: str,
+    comment: str,
+    customer_name: str,
+    source: str,
+    external_id: str,
+    items: list[dict[str, Any]],
+) -> OneCOrderResult:
+    payload = build_order_payload(
+        phone=phone,
+        comment=comment,
+        customer_name=customer_name,
+        source=source,
+        external_id=external_id,
+        items=items,
+        total_price=record["total_price"],
+    )
+    onec_result = push_order(payload)
+    record["onec"] = {
+        "ok": onec_result.ok,
+        "skipped": onec_result.skipped,
+        "number": onec_result.number,
+        "ref": onec_result.ref,
+        "message": onec_result.message,
+    }
+    if not onec_result.skipped:
+        append_order(
+            {
+                "ts": datetime.now(timezone.utc).isoformat(),
+                "type": "onec_status",
+                "external_id": external_id,
+                "phone": phone,
+                "onec": record["onec"],
+            }
+        )
+    if not onec_result.ok and not onec_result.skipped:
+        logger.error("1С отклонила заявку: %s", onec_result.message)
+    elif onec_result.skipped:
+        logger.info("1С пропущена: %s", onec_result.message)
+    else:
+        logger.info("Заявка в 1С: %s %s", onec_result.number or "", onec_result.message)
+    return onec_result
+
+
 def save_order(
     *,
     user_id: int,
@@ -79,6 +145,7 @@ def save_order(
     push_to_onec: bool = True,
 ) -> tuple[Path, dict[str, Any], OneCOrderResult | None]:
     items = order_items_from_cart(cart)
+    external_id = f"tg-{user_id}-{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S%f')}"
     record = build_order_record(
         user_id=user_id,
         full_name=full_name,
@@ -87,52 +154,26 @@ def save_order(
         note=note,
         phone=phone,
         source=source,
+        external_id=external_id,
         total_price=cart.total_price(),
     )
     path = append_order(record)
 
     onec_result: OneCOrderResult | None = None
     if push_to_onec:
-        payload = build_order_payload(
+        onec_result = _attach_onec(
+            record,
             phone=phone,
             comment=note,
             customer_name=full_name,
             source=source,
-            external_id=str(record.get("external_id") or f"tg-{user_id}-{record['ts']}"),
+            external_id=external_id,
             items=items,
-            total_price=record["total_price"],
         )
-        onec_result = push_order(payload)
-        record["onec"] = {
-            "ok": onec_result.ok,
-            "skipped": onec_result.skipped,
-            "number": onec_result.number,
-            "ref": onec_result.ref,
-            "message": onec_result.message,
-        }
-        # допишем статус 1С отдельной строкой-обновлением не нужно —
-        # фиксируем рядом в той же записи через rewrite last line слишком сложно;
-        # пишем отдельный audit-хвост
-        if not onec_result.skipped:
-            append_order(
-                {
-                    "ts": datetime.now(timezone.utc).isoformat(),
-                    "type": "onec_status",
-                    "phone": phone,
-                    "onec": record["onec"],
-                }
-            )
-        if not onec_result.ok and not onec_result.skipped:
-            logger.error("1С отклонила заявку: %s", onec_result.message)
-        elif onec_result.skipped:
-            logger.info("1С пропущена: %s", onec_result.message)
-        else:
-            logger.info("Заявка в 1С: %s %s", onec_result.number or "", onec_result.message)
-
     return path, record, onec_result
 
 
-async def save_order_async(
+def save_order_from_items(
     *,
     user_id: int | str,
     full_name: str,
@@ -144,7 +185,26 @@ async def save_order_async(
     total_price: int | None = None,
     external_id: str = "",
     push_to_onec: bool = True,
-) -> tuple[Path, dict[str, Any], OneCOrderResult | None]:
+) -> tuple[Path, dict[str, Any], OneCOrderResult | None, bool]:
+    """Сохранить заявку из API. Возвращает duplicate=True при повторном external_id."""
+    if external_id:
+        existing = find_order_by_external_id(external_id)
+        if existing:
+            onec = existing.get("onec") or {}
+            return (
+                ORDERS_FILE,
+                existing,
+                OneCOrderResult(
+                    ok=bool(onec.get("ok", True)),
+                    skipped=bool(onec.get("skipped", False)),
+                    number=str(onec.get("number") or ""),
+                    ref=str(onec.get("ref") or ""),
+                    message=str(onec.get("message") or "Уже принята ранее"),
+                ),
+                True,
+            )
+
+    eid = external_id or f"{source}-{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S%f')}"
     record = build_order_record(
         user_id=user_id,
         full_name=full_name,
@@ -153,36 +213,19 @@ async def save_order_async(
         note=note,
         phone=phone,
         source=source,
-        external_id=external_id,
+        external_id=eid,
         total_price=total_price,
     )
     path = append_order(record)
     onec_result: OneCOrderResult | None = None
     if push_to_onec:
-        payload = build_order_payload(
+        onec_result = _attach_onec(
+            record,
             phone=phone,
             comment=note,
             customer_name=full_name,
             source=source,
-            external_id=external_id or f"{source}-{record['ts']}",
+            external_id=eid,
             items=items,
-            total_price=record["total_price"],
         )
-        onec_result = await push_order_async(payload)
-        record["onec"] = {
-            "ok": onec_result.ok,
-            "skipped": onec_result.skipped,
-            "number": onec_result.number,
-            "ref": onec_result.ref,
-            "message": onec_result.message,
-        }
-        if not onec_result.skipped:
-            append_order(
-                {
-                    "ts": datetime.now(timezone.utc).isoformat(),
-                    "type": "onec_status",
-                    "phone": phone,
-                    "onec": record["onec"],
-                }
-            )
-    return path, record, onec_result
+    return path, record, onec_result, False

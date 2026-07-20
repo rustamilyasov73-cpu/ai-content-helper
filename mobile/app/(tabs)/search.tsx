@@ -1,13 +1,14 @@
 import { useMemo, useState } from 'react';
 import { FlatList, StyleSheet, Text, TextInput, View } from 'react-native';
 import { PartRow } from '../../src/components/PartRow';
-import { searchParts } from '../../src/catalog';
+import { searchParts, useParts } from '../../src/catalog';
 import { go } from '../../src/nav';
 import { colors, spacing } from '../../src/theme';
 
 export default function SearchScreen() {
   const [query, setQuery] = useState('');
-  const results = useMemo(() => searchParts(query), [query]);
+  const parts = useParts();
+  const results = useMemo(() => searchParts(query), [query, parts]);
 
   return (
     <View style={styles.screen}>
@@ -17,7 +18,7 @@ export default function SearchScreen() {
           onChangeText={setQuery}
           placeholder="Артикул, бренд, модель…"
           placeholderTextColor={colors.inkMuted}
-          autoCapitalize="characters"
+          autoCapitalize="none"
           autoCorrect={false}
           style={styles.input}
         />

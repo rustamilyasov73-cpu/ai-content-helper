@@ -18,7 +18,7 @@ from config import (
 )
 from services.catalog import Catalog
 from services.onec import is_configured, ping, sync_catalog
-from services.orders import save_order_async
+from services.orders import save_order_from_items
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("agroparts.api")
@@ -30,16 +30,27 @@ MIRROR_PARTS = [
 ]
 
 
+def _cors_headers(handler: BaseHTTPRequestHandler) -> None:
+    handler.send_header("Access-Control-Allow-Origin", "*")
+    handler.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-API-Token")
+    handler.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+
+
 def _json_response(handler: BaseHTTPRequestHandler, status: int, payload: dict[str, Any]) -> None:
     body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
     handler.send_response(status)
     handler.send_header("Content-Type", "application/json; charset=utf-8")
     handler.send_header("Content-Length", str(len(body)))
-    handler.send_header("Access-Control-Allow-Origin", "*")
-    handler.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-API-Token")
-    handler.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+    _cors_headers(handler)
     handler.end_headers()
     handler.wfile.write(body)
+
+
+def _empty_response(handler: BaseHTTPRequestHandler, status: int) -> None:
+    handler.send_response(status)
+    handler.send_header("Content-Length", "0")
+    _cors_headers(handler)
+    handler.end_headers()
 
 
 def _read_json(handler: BaseHTTPRequestHandler) -> dict[str, Any]:
@@ -72,11 +83,11 @@ class Handler(BaseHTTPRequestHandler):
         logger.info("%s - %s", self.address_string(), fmt % args)
 
     def do_OPTIONS(self) -> None:  # noqa: N802
-        _json_response(self, 204, {"ok": True})
+        _empty_response(self, 204)
 
     def do_GET(self) -> None:  # noqa: N802
         path = urlparse(self.path).path.rstrip("/") or "/"
-        if path == "/health" or path == "/api/health":
+        if path in {"/health", "/api/health"}:
             _json_response(
                 self,
                 200,
@@ -89,6 +100,7 @@ class Handler(BaseHTTPRequestHandler):
             )
             return
         if path == "/api/parts":
+            # публичный каталог для телефона
             parts = json.loads(Path(PARTS_FILE).read_text(encoding="utf-8"))
             _json_response(self, 200, {"ok": True, "count": len(parts), "items": parts})
             return
@@ -153,26 +165,23 @@ class Handler(BaseHTTPRequestHandler):
             _json_response(self, 400, {"ok": False, "message": "Нет валидных позиций"})
             return
 
-        import asyncio
-
-        path, record, onec_result = asyncio.run(
-            save_order_async(
-                user_id=str(data.get("user_id") or data.get("device_id") or "mobile"),
-                full_name=str(data.get("customer_name") or data.get("full_name") or "Мобильный клиент"),
-                username=str(data.get("username") or ""),
-                items=normalized,
-                note=str(data.get("comment") or data.get("note") or ""),
-                phone=phone,
-                source=str(data.get("source") or "mobile"),
-                external_id=str(data.get("id") or data.get("external_id") or ""),
-                total_price=int(data["total"]) if data.get("total") is not None else None,
-            )
+        path, record, onec_result, duplicate = save_order_from_items(
+            user_id=str(data.get("user_id") or data.get("device_id") or "mobile"),
+            full_name=str(data.get("customer_name") or data.get("full_name") or "Мобильный клиент"),
+            username=str(data.get("username") or ""),
+            items=normalized,
+            note=str(data.get("comment") or data.get("note") or ""),
+            phone=phone,
+            source=str(data.get("source") or "mobile"),
+            external_id=str(data.get("id") or data.get("external_id") or ""),
+            total_price=int(data["total"]) if data.get("total") is not None else None,
         )
         payload = {
             "ok": True,
+            "duplicate": duplicate,
             "order_id": record.get("external_id") or record.get("ts"),
             "saved": str(path),
-            "total": record["total_price"],
+            "total": record.get("total_price"),
             "onec": None
             if onec_result is None
             else {
@@ -183,6 +192,8 @@ class Handler(BaseHTTPRequestHandler):
                 "message": onec_result.message,
             },
         }
+        if duplicate:
+            payload["message"] = "Заявка уже была принята ранее"
         status = 200 if (onec_result is None or onec_result.ok or onec_result.skipped) else 502
         if status == 502:
             payload["ok"] = False

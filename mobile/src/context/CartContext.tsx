@@ -13,7 +13,10 @@ type CartContextValue = {
   clear: () => void;
   totalQty: number;
   totalPrice: number;
-  placeOrder: (phone: string, comment: string) => Order | null;
+  /** Собрать заявку без очистки корзины (для отправки в API). */
+  buildOrder: (phone: string, comment: string) => Order | null;
+  /** Сохранить заявку в историю и очистить корзину. */
+  commitOrder: (order: Order) => void;
 };
 
 const CartContext = createContext<CartContextValue | null>(null);
@@ -83,7 +86,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       },
       remove: (partId) => setItems((prev) => prev.filter((i) => i.partId !== partId)),
       clear: () => setItems([]),
-      placeOrder: (phone, comment) => {
+      buildOrder: (phone, comment) => {
         if (!items.length || !phone.trim()) return null;
         const orderItems = items
           .map((item) => {
@@ -99,7 +102,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
           })
           .filter(Boolean) as Order['items'];
         if (!orderItems.length) return null;
-        const order: Order = {
+        return {
           id: `ord-${Date.now()}`,
           createdAt: new Date().toISOString(),
           phone: phone.trim(),
@@ -107,9 +110,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
           items: orderItems,
           total: orderItems.reduce((s, i) => s + i.price * i.qty, 0),
         };
-        setOrders((prev) => [order, ...prev]);
+      },
+      commitOrder: (order) => {
+        setOrders((prev) => [order, ...prev.filter((o) => o.id !== order.id)]);
         setItems([]);
-        return order;
       },
     };
   }, [items, orders, ready]);

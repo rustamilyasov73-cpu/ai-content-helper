@@ -10,7 +10,7 @@ import {
   View,
 } from 'react-native';
 import { PartRow } from '../../src/components/PartRow';
-import { matchBySkuCandidates } from '../../src/catalog';
+import { matchBySkuCandidates, useParts } from '../../src/catalog';
 import { useSettings } from '../../src/context/SettingsContext';
 import { go } from '../../src/nav';
 import { colors, spacing } from '../../src/theme';
@@ -18,11 +18,13 @@ import type { Part, PhotoRecognition } from '../../src/types';
 import { recognizePartPhoto } from '../../src/vision';
 
 export default function PhotoScreen() {
+  useParts();
   const { apiKey } = useSettings();
   const [preview, setPreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<PhotoRecognition | null>(null);
   const [matches, setMatches] = useState<Part[]>([]);
+  const [searched, setSearched] = useState(false);
 
   async function pick(fromCamera: boolean) {
     const permission = fromCamera
@@ -56,6 +58,7 @@ export default function PhotoScreen() {
     setLoading(true);
     setResult(null);
     setMatches([]);
+    setSearched(false);
 
     const mime = asset.mimeType || 'image/jpeg';
     const base64 = asset.base64;
@@ -76,6 +79,9 @@ export default function PhotoScreen() {
     setResult(recognition);
     if (!recognition.error && recognition.candidates.length) {
       setMatches(matchBySkuCandidates(recognition.candidates));
+      setSearched(true);
+    } else if (!recognition.error) {
+      setSearched(true);
     }
     setLoading(false);
   }
@@ -128,6 +134,7 @@ export default function PhotoScreen() {
       ) : null}
 
       <FlatList
+        style={styles.list}
         data={matches}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
@@ -135,6 +142,14 @@ export default function PhotoScreen() {
         )}
         ListHeaderComponent={
           matches.length ? <Text style={styles.listHeader}>Совпадения в каталоге</Text> : null
+        }
+        ListEmptyComponent={
+          searched && result && !result.error && result.candidates.length ? (
+            <Text style={styles.empty}>
+              Коды распознаны, но в каталоге совпадений нет. Обновите каталог с сервера или
+              уточните артикул в Поиске.
+            </Text>
+          ) : null
         }
       />
     </View>
@@ -234,10 +249,18 @@ const styles = StyleSheet.create({
     color: colors.inkMuted,
     fontSize: 13,
   },
+  list: { flex: 1 },
   listHeader: {
     paddingHorizontal: spacing.md,
     paddingBottom: 6,
     fontFamily: 'DMSans_600SemiBold',
     color: colors.ink,
+  },
+  empty: {
+    marginHorizontal: spacing.md,
+    marginTop: 8,
+    fontFamily: 'DMSans_400Regular',
+    color: colors.inkMuted,
+    lineHeight: 20,
   },
 });

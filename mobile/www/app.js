@@ -104,9 +104,15 @@ function getPart(id) {
 function categories() {
   const counts = {};
   for (const p of state.parts) counts[p.category] = (counts[p.category] || 0) + 1;
-  return Object.keys(CATEGORY_LABELS)
+  const ordered = Object.keys(CATEGORY_LABELS)
     .filter((k) => counts[k])
     .map((k) => ({ key: k, label: CATEGORY_LABELS[k], count: counts[k] }));
+  for (const key of Object.keys(counts)) {
+    if (!CATEGORY_LABELS[key]) {
+      ordered.push({ key, label: key, count: counts[key] });
+    }
+  }
+  return ordered;
 }
 
 function brands() {
@@ -196,6 +202,14 @@ function setQty(partId, qty) {
   render();
 }
 
+function commitLocalOrder(order) {
+  state.orders = [order, ...state.orders.filter((o) => o.id !== order.id)];
+  state.cart = [];
+  state.phone = '';
+  state.comment = '';
+  save();
+}
+
 async function placeOrder() {
   if (state.sendingOrder) return;
   if (!state.cart.length) return toast('Корзина пуста');
@@ -215,14 +229,10 @@ async function placeOrder() {
     items,
     total: items.reduce((s, i) => s + i.price * i.qty, 0),
   };
-  state.orders.unshift(order);
-  state.cart = [];
-  state.phone = '';
-  state.comment = '';
-  save();
 
   const base = state.apiBaseUrl.trim().replace(/\/+$/, '');
   if (!base) {
+    commitLocalOrder(order);
     toast(`Заявка ${order.id} на телефоне. Укажите URL API для 1С`);
     render();
     return;
@@ -247,19 +257,37 @@ async function placeOrder() {
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok || data.ok === false) {
-      toast(`Сохранено локально. 1С: ${data.message || res.status}`);
-    } else if (data.onec?.number) {
-      toast(`Заявка в 1С №${data.onec.number}`);
-    } else if (data.onec?.skipped) {
-      toast(`Заявка на сервере (1С выкл.)`);
-    } else {
-      toast(`Заявка ${order.id} отправлена`);
+      toast(`Не отправлено, корзина сохранена: ${data.message || res.status}`);
+      return;
     }
+    commitLocalOrder(order);
+    if (data.onec?.number) toast(`Заявка в 1С №${data.onec.number}`);
+    else if (data.onec?.skipped) toast('Заявка на сервере (1С выкл.)');
+    else toast(`Заявка ${order.id} отправлена`);
   } catch (e) {
-    toast(`Локально ок, сеть: ${e.message || 'ошибка'}`);
+    toast(`Не отправлено, корзина сохранена: ${e.message || 'ошибка'}`);
   } finally {
     state.sendingOrder = false;
     render();
+  }
+}
+
+async function refreshCatalogFromApi() {
+  const base = state.apiBaseUrl.trim().replace(/\/+$/, '');
+  if (!base) return toast('Укажите URL API');
+  try {
+    const headers = {};
+    if (state.apiToken.trim()) headers['X-API-Token'] = state.apiToken.trim();
+    const res = await fetch(`${base}/api/parts`, { headers });
+    const data = await res.json();
+    if (!res.ok || !Array.isArray(data.items)) {
+      return toast(data.message || `Ошибка ${res.status}`);
+    }
+    state.parts = data.items;
+    toast(`Каталог: ${data.items.length} позиций`);
+    render();
+  } catch (e) {
+    toast(e.message || 'Сеть недоступна');
   }
 }
 
@@ -591,8 +619,8 @@ function renderSettings() {
   return `
     <div class="topbar">Настройки</div>
     <div class="panel">
-      <h2 style="margin:0 0 8px;font-size:22px;">AgroParts на телефоне</h2>
-      <p class="muted">Каталог офлайн. Заявки в 1С — через URL API. Фото бирок — через OpenAI ключ.</p>
+      <h2 style="margin:0 0 8px;font-size:22px;">AgroParts</h2>
+      <p class="muted">Локальный каталог: ${state.parts.length} поз. Обновите с сервера после синхронизации 1С.</p>
       <label style="display:block;margin:12px 0 6px;font-weight:600;">URL API (1С через AgroParts)</label>
       <input class="input" id="apiUrlInput" type="url" placeholder="http://192.168.1.10:8080" value="${escapeAttr(state.apiBaseUrl)}" />
       <label style="display:block;margin:12px 0 6px;font-weight:600;">API Token</label>
@@ -601,6 +629,8 @@ function renderSettings() {
       <input class="input" id="apiKeyInput" type="password" placeholder="sk-..." value="${escapeAttr(state.apiKey)}" />
       <div style="height:12px"></div>
       <button class="btn primary" id="saveKeyBtn" type="button">Сохранить</button>
+      <div style="height:10px"></div>
+      <button class="btn" id="syncCatalogBtn" type="button">Обновить каталог с сервера</button>
     </div>
     ${tabbar('settings')}
   `;
@@ -720,6 +750,20 @@ function bind() {
         localStorage.setItem('agroparts.api_token', state.apiToken);
       }
       toast('Настройки сохранены');
+    });
+  }
+  const syncCatalogBtn = document.getElementById('syncCatalogBtn');
+  if (syncCatalogBtn) {
+    syncCatalogBtn.addEventListener('click', () => {
+      if (apiUrlInput) {
+        state.apiBaseUrl = apiUrlInput.value.trim().replace(/\/+$/, '');
+        localStorage.setItem('agroparts.api_base_url', state.apiBaseUrl);
+      }
+      if (apiTokenInput) {
+        state.apiToken = apiTokenInput.value.trim();
+        localStorage.setItem('agroparts.api_token', state.apiToken);
+      }
+      void refreshCatalogFromApi();
     });
   }
   const cameraInput = document.getElementById('cameraInput');

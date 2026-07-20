@@ -1,3 +1,4 @@
+import { useSyncExternalStore } from 'react';
 import partsData from '../data/parts.json';
 import type { Part } from './types';
 
@@ -13,7 +14,32 @@ export const CATEGORY_LABELS: Record<string, string> = {
   cooling: 'Охлаждение',
 };
 
-const PARTS = partsData as Part[];
+let partsCache: Part[] = [...(partsData as Part[])];
+const listeners = new Set<() => void>();
+
+function emit() {
+  for (const listener of listeners) listener();
+}
+
+export function subscribeParts(listener: () => void): () => void {
+  listeners.add(listener);
+  return () => {
+    listeners.delete(listener);
+  };
+}
+
+export function getPartsSnapshot(): Part[] {
+  return partsCache;
+}
+
+export function replaceParts(next: Part[]): void {
+  partsCache = Array.isArray(next) ? [...next] : [];
+  emit();
+}
+
+export function useParts(): Part[] {
+  return useSyncExternalStore(subscribeParts, getPartsSnapshot, getPartsSnapshot);
+}
 
 function normalize(text: string): string {
   return text
@@ -37,16 +63,16 @@ export function formatPrice(price: number): string {
 }
 
 export function allParts(): Part[] {
-  return PARTS;
+  return partsCache;
 }
 
 export function getPart(id: string): Part | undefined {
-  return PARTS.find((p) => p.id === id);
+  return partsCache.find((p) => p.id === id);
 }
 
 export function categories(): Array<{ key: string; label: string; count: number }> {
   const counts: Record<string, number> = {};
-  for (const part of PARTS) {
+  for (const part of partsCache) {
     counts[part.category] = (counts[part.category] ?? 0) + 1;
   }
   const ordered = Object.keys(CATEGORY_LABELS)
@@ -62,7 +88,7 @@ export function categories(): Array<{ key: string; label: string; count: number 
 
 export function brands(): Array<{ name: string; count: number }> {
   const counts: Record<string, number> = {};
-  for (const part of PARTS) {
+  for (const part of partsCache) {
     counts[part.brand] = (counts[part.brand] ?? 0) + 1;
   }
   return Object.entries(counts)
@@ -71,12 +97,12 @@ export function brands(): Array<{ name: string; count: number }> {
 }
 
 export function byCategory(category: string): Part[] {
-  return PARTS.filter((p) => p.category === category);
+  return partsCache.filter((p) => p.category === category);
 }
 
 export function byBrand(brand: string): Part[] {
   const needle = normalize(brand);
-  return PARTS.filter((p) => normalize(p.brand) === needle);
+  return partsCache.filter((p) => normalize(p.brand) === needle);
 }
 
 export function searchParts(query: string, limit = 30): Part[] {
@@ -85,7 +111,7 @@ export function searchParts(query: string, limit = 30): Part[] {
   const qCompact = compact(query);
 
   const scored: Array<[number, Part]> = [];
-  for (const part of PARTS) {
+  for (const part of partsCache) {
     const skuN = normalize(part.sku);
     const skuC = compact(part.sku);
     const nameN = normalize(part.name);

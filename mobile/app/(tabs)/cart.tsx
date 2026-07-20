@@ -10,14 +10,15 @@ import {
 } from 'react-native';
 import { submitOrderToApi } from '../../src/api';
 import { QtyControls } from '../../src/components/QtyControls';
-import { formatPrice, getPart } from '../../src/catalog';
+import { formatPrice, getPart, useParts } from '../../src/catalog';
 import { useCart } from '../../src/context/CartContext';
 import { useSettings } from '../../src/context/SettingsContext';
 import { go } from '../../src/nav';
 import { colors, spacing } from '../../src/theme';
 
 export default function CartScreen() {
-  const { items, setQty, remove, totalPrice, placeOrder, orders } = useCart();
+  useParts(); // перерисовка при обновлении каталога с API
+  const { items, setQty, remove, clear, totalPrice, buildOrder, commitOrder, orders } = useCart();
   const { apiBaseUrl, apiToken } = useSettings();
   const [phone, setPhone] = useState('');
   const [comment, setComment] = useState('');
@@ -25,15 +26,16 @@ export default function CartScreen() {
 
   async function submit() {
     if (sending) return;
-    const order = placeOrder(phone, comment);
+    const order = buildOrder(phone, comment);
     if (!order) {
       Alert.alert('Заявка', 'Добавьте товары и укажите телефон');
       return;
     }
-    setPhone('');
-    setComment('');
 
     if (!apiBaseUrl.trim()) {
+      commitOrder(order);
+      setPhone('');
+      setComment('');
       Alert.alert(
         'Заявка сохранена на телефоне',
         `№ ${order.id}\nСумма ${formatPrice(order.total)}\n\nЧтобы отправить в 1С, укажите URL API в Настройках.`,
@@ -46,20 +48,26 @@ export default function CartScreen() {
       const result = await submitOrderToApi(apiBaseUrl, order, apiToken);
       if (!result.ok) {
         Alert.alert(
-          'Локально сохранено',
-          `№ ${order.id}\nНе удалось отправить в 1С: ${result.message || 'ошибка'}`,
+          'Не отправлено',
+          `Корзина сохранена — можно повторить.\n${result.message || 'Ошибка API/1С'}`,
         );
         return;
       }
+      commitOrder(order);
+      setPhone('');
+      setComment('');
       const onecNum = result.onec?.number ? ` · 1С №${result.onec.number}` : '';
       const onecNote = result.onec?.skipped
-        ? '\n1С выключена на сервере — заявка в журнале API'
+        ? '\n1С на сервере выключена — заявка в журнале API'
         : onecNum;
-      Alert.alert('Заявка отправлена', `№ ${order.id}${onecNote}\nСумма ${formatPrice(order.total)}`);
+      const dup = result.duplicate ? '\n(повтор — уже была принята)' : '';
+      Alert.alert('Заявка отправлена', `№ ${order.id}${onecNote}${dup}\nСумма ${formatPrice(order.total)}`);
     } catch (error) {
       Alert.alert(
-        'Локально сохранено',
-        `№ ${order.id}\nСеть/API недоступны: ${error instanceof Error ? error.message : 'ошибка'}`,
+        'Не отправлено',
+        `Корзина сохранена — проверьте сеть/URL API.\n${
+          error instanceof Error ? error.message : 'ошибка'
+        }`,
       );
     } finally {
       setSending(false);
@@ -72,9 +80,16 @@ export default function CartScreen() {
         data={items}
         keyExtractor={(item) => item.partId}
         ListHeaderComponent={
-          <Text style={styles.section}>
-            {items.length ? 'Позиции' : 'Корзина пуста — добавьте детали из каталога'}
-          </Text>
+          <View style={styles.headerRow}>
+            <Text style={styles.section}>
+              {items.length ? 'Позиции' : 'Корзина пуста — добавьте детали из каталога'}
+            </Text>
+            {items.length ? (
+              <Pressable onPress={clear}>
+                <Text style={styles.clear}>Очистить</Text>
+              </Pressable>
+            ) : null}
+          </View>
         }
         renderItem={({ item }) => {
           const part = getPart(item.partId);
@@ -153,10 +168,22 @@ export default function CartScreen() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.bg },
+  headerRow: {
+    paddingHorizontal: spacing.md,
+    paddingTop: spacing.md,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
   section: {
-    padding: spacing.md,
     fontFamily: 'DMSans_600SemiBold',
     color: colors.inkMuted,
+    flex: 1,
+  },
+  clear: {
+    fontFamily: 'DMSans_600SemiBold',
+    color: colors.danger,
+    fontSize: 13,
   },
   row: {
     backgroundColor: colors.surface,

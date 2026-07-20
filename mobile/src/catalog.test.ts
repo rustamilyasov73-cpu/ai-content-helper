@@ -9,7 +9,8 @@ assert.ok(matchBySkuCandidates(['RE507922', 'AL156625']).length >= 2);
 const fromOcr = extractSkuCandidates('Part No RE507922 John Deere Oil Filter');
 assert.ok(fromOcr.includes('RE507922'));
 
-const before = allParts().length;
+const snapshot = [...allParts()];
+assert.ok(snapshot.length >= 10);
 replaceParts([
   {
     id: 'tmp1',
@@ -26,8 +27,7 @@ replaceParts([
 ]);
 assert.equal(allParts().length, 1);
 assert.equal(searchParts('TMP-1')[0]?.sku, 'TMP-1');
-// восстановим исходный каталог из data через повторный import нельзя —
-// для теста достаточно проверить replaceParts; дальше тесты каталога уже прошли
-assert.ok(before >= 10);
+replaceParts(snapshot);
+assert.equal(allParts().length, snapshot.length);
 
 console.log('catalog/vision tests ok');

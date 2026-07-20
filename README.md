@@ -49,7 +49,31 @@ cp .env.example .env   # BOT_TOKEN, OPENAI_API_KEY
 python bot.py
 ```
 
-Тесты бота: `pytest -q`
+Тесты: `pytest -q`
+
+---
+
+## 1С:Бухгалтерия
+
+Обмен через HTTP-сервис 1С:
+
+- **1С → AgroParts** — номенклатура, цены, остатки (`python sync_onec.py`)
+- **AgroParts → 1С** — заявки с телефона и из Telegram
+
+```bash
+# .env
+ONEC_ENABLED=true
+ONEC_BASE_URL=http://1c-server/buh/hs/agroparts
+ONEC_USER=AgroParts
+ONEC_PASSWORD=secret
+
+python sync_onec.py --ping
+python sync_onec.py
+python api_server.py   # шлюз для телефона :8080
+```
+
+В приложении: **Настройки → URL API** (`http://IP:8080`).  
+Подробности и пример модуля 1С: [`docs/onec.md`](docs/onec.md), [`onec/HTTPServiceModule.bsl`](onec/HTTPServiceModule.bsl).
 
 ---
 
@@ -58,14 +82,13 @@ python bot.py
 ```text
 ai-content-helper/
 ├── mobile/           ← приложение для телефона
-│   ├── app/
-│   ├── src/
-│   ├── data/parts.json
-│   └── README.md
 ├── bot.py            ← Telegram-бот (опционально)
+├── api_server.py     ← API → заявки в 1С
+├── sync_onec.py      ← выгрузка номенклатуры из 1С
 ├── data/parts.json
-├── services/
-└── README.md
+├── services/onec.py
+├── docs/onec.md
+└── onec/HTTPServiceModule.bsl
 ```
 
 ---

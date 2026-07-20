@@ -31,6 +31,8 @@ const state = {
   cart: loadJson('agroparts.cart', []),
   orders: loadJson('agroparts.orders', []),
   apiKey: localStorage.getItem('agroparts.openai_api_key') || '',
+  apiBaseUrl: localStorage.getItem('agroparts.api_base_url') || '',
+  apiToken: localStorage.getItem('agroparts.api_token') || '',
   filter: { type: 'all' },
   query: '',
   photo: {
@@ -42,6 +44,7 @@ const state = {
   phone: '',
   comment: '',
   toast: '',
+  sendingOrder: false,
 };
 
 function loadJson(key, fallback) {
@@ -193,7 +196,8 @@ function setQty(partId, qty) {
   render();
 }
 
-function placeOrder() {
+async function placeOrder() {
+  if (state.sendingOrder) return;
   if (!state.cart.length) return toast('Корзина пуста');
   if (!state.phone.trim()) return toast('Укажите телефон');
   const items = state.cart
@@ -216,8 +220,47 @@ function placeOrder() {
   state.phone = '';
   state.comment = '';
   save();
-  toast(`Заявка ${order.id} оформлена`);
+
+  const base = state.apiBaseUrl.trim().replace(/\/+$/, '');
+  if (!base) {
+    toast(`Заявка ${order.id} на телефоне. Укажите URL API для 1С`);
+    render();
+    return;
+  }
+
+  state.sendingOrder = true;
   render();
+  try {
+    const headers = { 'Content-Type': 'application/json' };
+    if (state.apiToken.trim()) headers['X-API-Token'] = state.apiToken.trim();
+    const res = await fetch(`${base}/api/orders`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        id: order.id,
+        phone: order.phone,
+        comment: order.comment,
+        total: order.total,
+        source: 'mobile-web',
+        items: order.items,
+      }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || data.ok === false) {
+      toast(`Сохранено локально. 1С: ${data.message || res.status}`);
+    } else if (data.onec?.number) {
+      toast(`Заявка в 1С №${data.onec.number}`);
+    } else if (data.onec?.skipped) {
+      toast(`Заявка на сервере (1С выкл.)`);
+    } else {
+      toast(`Заявка ${order.id} отправлена`);
+    }
+  } catch (e) {
+    toast(`Локально ок, сеть: ${e.message || 'ошибка'}`);
+  } finally {
+    state.sendingOrder = false;
+    render();
+  }
 }
 
 function toast(msg) {
@@ -549,7 +592,11 @@ function renderSettings() {
     <div class="topbar">Настройки</div>
     <div class="panel">
       <h2 style="margin:0 0 8px;font-size:22px;">AgroParts на телефоне</h2>
-      <p class="muted">Каталог и корзина работают без интернета на этом устройстве. Для распознавания бирок по фото нужен OpenAI API ключ.</p>
+      <p class="muted">Каталог офлайн. Заявки в 1С — через URL API. Фото бирок — через OpenAI ключ.</p>
+      <label style="display:block;margin:12px 0 6px;font-weight:600;">URL API (1С через AgroParts)</label>
+      <input class="input" id="apiUrlInput" type="url" placeholder="http://192.168.1.10:8080" value="${escapeAttr(state.apiBaseUrl)}" />
+      <label style="display:block;margin:12px 0 6px;font-weight:600;">API Token</label>
+      <input class="input" id="apiTokenInput" type="password" placeholder="необязательно" value="${escapeAttr(state.apiToken)}" />
       <label style="display:block;margin:12px 0 6px;font-weight:600;">OpenAI API Key</label>
       <input class="input" id="apiKeyInput" type="password" placeholder="sk-..." value="${escapeAttr(state.apiKey)}" />
       <div style="height:12px"></div>
@@ -653,14 +700,26 @@ function bind() {
   const commentInput = document.getElementById('commentInput');
   if (commentInput) commentInput.addEventListener('input', (e) => (state.comment = e.target.value));
   const orderBtn = document.getElementById('orderBtn');
-  if (orderBtn) orderBtn.addEventListener('click', placeOrder);
+  if (orderBtn) orderBtn.addEventListener('click', () => void placeOrder());
   const apiKeyInput = document.getElementById('apiKeyInput');
+  const apiUrlInput = document.getElementById('apiUrlInput');
+  const apiTokenInput = document.getElementById('apiTokenInput');
   const saveKeyBtn = document.getElementById('saveKeyBtn');
-  if (saveKeyBtn && apiKeyInput) {
+  if (saveKeyBtn) {
     saveKeyBtn.addEventListener('click', () => {
-      state.apiKey = apiKeyInput.value.trim();
-      localStorage.setItem('agroparts.openai_api_key', state.apiKey);
-      toast('Ключ сохранён');
+      if (apiKeyInput) {
+        state.apiKey = apiKeyInput.value.trim();
+        localStorage.setItem('agroparts.openai_api_key', state.apiKey);
+      }
+      if (apiUrlInput) {
+        state.apiBaseUrl = apiUrlInput.value.trim().replace(/\/+$/, '');
+        localStorage.setItem('agroparts.api_base_url', state.apiBaseUrl);
+      }
+      if (apiTokenInput) {
+        state.apiToken = apiTokenInput.value.trim();
+        localStorage.setItem('agroparts.api_token', state.apiToken);
+      }
+      toast('Настройки сохранены');
     });
   }
   const cameraInput = document.getElementById('cameraInput');

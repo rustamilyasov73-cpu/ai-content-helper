@@ -70,16 +70,19 @@ def test_save_order(tmp_path, monkeypatch):
     part = catalog.search("RE507922")[0]
     cart = Cart()
     cart.add(part, 1)
-    path = save_order(
+    path, record, onec_result = save_order(
         user_id=1,
         full_name="Test User",
         username="tester",
         cart=cart,
         note="трактор 6R",
         phone="+70001112233",
+        push_to_onec=False,
     )
     assert path.exists()
-    row = json.loads(Path(path).read_text(encoding="utf-8").strip())
-    assert row["total_qty"] == 1
-    assert row["phone"] == "+70001112233"
+    assert record["total_qty"] == 1
+    assert record["phone"] == "+70001112233"
+    assert record["items"][0]["sku"] == "RE507922"
+    assert onec_result is None
+    row = json.loads(Path(path).read_text(encoding="utf-8").strip().splitlines()[0])
     assert row["items"][0]["sku"] == "RE507922"

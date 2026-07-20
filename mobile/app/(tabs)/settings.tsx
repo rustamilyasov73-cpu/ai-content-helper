@@ -4,30 +4,61 @@ import { useSettings } from '../../src/context/SettingsContext';
 import { colors, spacing } from '../../src/theme';
 
 export default function SettingsScreen() {
-  const { apiKey, setApiKey, ready } = useSettings();
-  const [draft, setDraft] = useState('');
+  const { apiKey, apiBaseUrl, apiToken, setApiKey, setApiBaseUrl, setApiToken, ready } =
+    useSettings();
+  const [draftKey, setDraftKey] = useState('');
+  const [draftUrl, setDraftUrl] = useState('');
+  const [draftToken, setDraftToken] = useState('');
 
   useEffect(() => {
-    if (ready) setDraft(apiKey);
-  }, [apiKey, ready]);
+    if (!ready) return;
+    setDraftKey(apiKey);
+    setDraftUrl(apiBaseUrl);
+    setDraftToken(apiToken);
+  }, [apiKey, apiBaseUrl, apiToken, ready]);
 
   async function save() {
-    await setApiKey(draft);
-    Alert.alert('Сохранено', 'Ключ сохранён на этом устройстве');
+    await setApiKey(draftKey);
+    await setApiBaseUrl(draftUrl);
+    await setApiToken(draftToken);
+    Alert.alert('Сохранено', 'Настройки сохранены на этом устройстве');
   }
 
   return (
     <View style={styles.screen}>
       <Text style={styles.title}>AgroParts на телефоне</Text>
       <Text style={styles.text}>
-        Каталог и корзина работают офлайн. Для распознавания бирок по фото нужен OpenAI API ключ
-        (модель с vision, например gpt-4o-mini).
+        Каталог и корзина работают офлайн. Для распознавания бирок — OpenAI ключ. Для отправки
+        заявок в 1С:Бухгалтерия — URL API-шлюза AgroParts.
       </Text>
+
+      <Text style={styles.label}>URL API (1С через AgroParts)</Text>
+      <TextInput
+        value={draftUrl}
+        onChangeText={setDraftUrl}
+        placeholder="http://192.168.1.10:8080"
+        placeholderTextColor={colors.inkMuted}
+        autoCapitalize="none"
+        autoCorrect={false}
+        style={styles.input}
+      />
+
+      <Text style={styles.label}>API Token (если задан на сервере)</Text>
+      <TextInput
+        value={draftToken}
+        onChangeText={setDraftToken}
+        placeholder="необязательно"
+        placeholderTextColor={colors.inkMuted}
+        autoCapitalize="none"
+        autoCorrect={false}
+        secureTextEntry
+        style={styles.input}
+      />
 
       <Text style={styles.label}>OpenAI API Key</Text>
       <TextInput
-        value={draft}
-        onChangeText={setDraft}
+        value={draftKey}
+        onChangeText={setDraftKey}
         placeholder="sk-..."
         placeholderTextColor={colors.inkMuted}
         autoCapitalize="none"
@@ -40,11 +71,12 @@ export default function SettingsScreen() {
       </Pressable>
 
       <View style={styles.box}>
-        <Text style={styles.boxTitle}>Как открыть на телефоне</Text>
+        <Text style={styles.boxTitle}>1С:Бухгалтерия</Text>
         <Text style={styles.text}>
-          1. Установите Expo Go{'\n'}
-          2. На компьютере: cd mobile && npx expo start{'\n'}
-          3. Отсканируйте QR-код камерой / Expo Go
+          1. На сервере: python api_server.py{'\n'}
+          2. В .env включите ONEC_ENABLED и ONEC_BASE_URL{'\n'}
+          3. Укажите здесь IP сервера с портом 8080{'\n'}
+          4. Заявки из корзины уйдут в 1С
         </Text>
       </View>
     </View>

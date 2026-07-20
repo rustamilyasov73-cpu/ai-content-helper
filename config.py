@@ -19,6 +19,28 @@ VISION_MODEL = os.getenv("VISION_MODEL", OPENAI_MODEL)
 OPENAI_BASE_URL = os.getenv("OPENAI_BASE_URL", "")
 OPERATOR_CHAT_ID = os.getenv("OPERATOR_CHAT_ID", "")
 
+# --- 1С:Бухгалтерия (HTTP-сервис hs/agroparts) ---
+ONEC_ENABLED = os.getenv("ONEC_ENABLED", "false").strip().lower() in {
+    "1",
+    "true",
+    "yes",
+    "on",
+}
+ONEC_BASE_URL = os.getenv("ONEC_BASE_URL", "").strip()
+ONEC_USER = os.getenv("ONEC_USER", "").strip()
+ONEC_PASSWORD = os.getenv("ONEC_PASSWORD", "")
+ONEC_TIMEOUT = float(os.getenv("ONEC_TIMEOUT", "30"))
+# Telegram user id через запятую — кто может /sync1c
+ONEC_ADMIN_IDS = {
+    int(x.strip())
+    for x in os.getenv("ONEC_ADMIN_IDS", "").split(",")
+    if x.strip().isdigit()
+}
+# API-шлюз для мобильного приложения → заявки в 1С
+API_HOST = os.getenv("API_HOST", "0.0.0.0")
+API_PORT = int(os.getenv("API_PORT", "8080"))
+API_TOKEN = os.getenv("API_TOKEN", "").strip()
+
 
 def require_bot_token() -> str:
     if not BOT_TOKEN:

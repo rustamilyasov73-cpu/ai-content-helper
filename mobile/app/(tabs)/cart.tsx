@@ -8,26 +8,62 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import { submitOrderToApi } from '../../src/api';
 import { QtyControls } from '../../src/components/QtyControls';
 import { formatPrice, getPart } from '../../src/catalog';
 import { useCart } from '../../src/context/CartContext';
+import { useSettings } from '../../src/context/SettingsContext';
 import { go } from '../../src/nav';
 import { colors, spacing } from '../../src/theme';
 
 export default function CartScreen() {
   const { items, setQty, remove, totalPrice, placeOrder, orders } = useCart();
+  const { apiBaseUrl, apiToken } = useSettings();
   const [phone, setPhone] = useState('');
   const [comment, setComment] = useState('');
+  const [sending, setSending] = useState(false);
 
-  function submit() {
+  async function submit() {
+    if (sending) return;
     const order = placeOrder(phone, comment);
     if (!order) {
       Alert.alert('Заявка', 'Добавьте товары и укажите телефон');
       return;
     }
-    Alert.alert('Заявка отправлена', `№ ${order.id}\nСумма ${formatPrice(order.total)}`);
     setPhone('');
     setComment('');
+
+    if (!apiBaseUrl.trim()) {
+      Alert.alert(
+        'Заявка сохранена на телефоне',
+        `№ ${order.id}\nСумма ${formatPrice(order.total)}\n\nЧтобы отправить в 1С, укажите URL API в Настройках.`,
+      );
+      return;
+    }
+
+    setSending(true);
+    try {
+      const result = await submitOrderToApi(apiBaseUrl, order, apiToken);
+      if (!result.ok) {
+        Alert.alert(
+          'Локально сохранено',
+          `№ ${order.id}\nНе удалось отправить в 1С: ${result.message || 'ошибка'}`,
+        );
+        return;
+      }
+      const onecNum = result.onec?.number ? ` · 1С №${result.onec.number}` : '';
+      const onecNote = result.onec?.skipped
+        ? '\n1С выключена на сервере — заявка в журнале API'
+        : onecNum;
+      Alert.alert('Заявка отправлена', `№ ${order.id}${onecNote}\nСумма ${formatPrice(order.total)}`);
+    } catch (error) {
+      Alert.alert(
+        'Локально сохранено',
+        `№ ${order.id}\nСеть/API недоступны: ${error instanceof Error ? error.message : 'ошибка'}`,
+      );
+    } finally {
+      setSending(false);
+    }
   }
 
   return (
@@ -84,8 +120,10 @@ export default function CartScreen() {
                   multiline
                   style={[styles.input, styles.comment]}
                 />
-                <Pressable style={styles.primary} onPress={submit}>
-                  <Text style={styles.primaryText}>Оформить заявку</Text>
+                <Pressable style={styles.primary} onPress={() => void submit()} disabled={sending}>
+                  <Text style={styles.primaryText}>
+                    {sending ? 'Отправка…' : 'Оформить заявку'}
+                  </Text>
                 </Pressable>
               </>
             ) : null}

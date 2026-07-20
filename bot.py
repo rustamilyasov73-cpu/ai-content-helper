@@ -11,7 +11,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import CallbackQuery, Message
 
-from config import OPERATOR_CHAT_ID, require_bot_token
+from config import BASE_DIR, ONEC_ADMIN_IDS, OPERATOR_CHAT_ID, require_bot_token
 from keyboards.menu import (
     brands_keyboard,
     cart_keyboard,
@@ -25,6 +25,8 @@ from keyboards.menu import (
 from services.cart import CartStore
 from services.catalog import Catalog
 from services.llm import advise
+from services.onec import is_configured as onec_configured
+from services.onec import sync_catalog
 from services.orders import save_order
 from services.vision import (
     format_recognition,
@@ -60,7 +62,8 @@ HELP_TEXT = (
     "/cart — корзина\n"
     "/order — оформить заявку\n"
     "/ask &lt;вопрос&gt; — AI-помощник\n"
-    "/reload — обновить каталог\n"
+    "/reload — обновить каталог из файла\n"
+    "/sync1c — загрузить номенклатуру из 1С\n"
     "/help — справка\n\n"
     "<b>Фото:</b> просто отправьте снимок бирки, шильдика или упаковки — "
     "бот распознает артикул и найдёт позицию в каталоге.\n\n"
@@ -237,6 +240,40 @@ async def cmd_reload(message: Message, state: FSMContext) -> None:
     await message.answer(f"Каталог обновлён. Позиций: {count}")
 
 
+@dp.message(Command("sync1c"))
+async def cmd_sync1c(message: Message, state: FSMContext) -> None:
+    await state.clear()
+    user = message.from_user
+    if ONEC_ADMIN_IDS and (not user or user.id not in ONEC_ADMIN_IDS):
+        await message.answer("Команда доступна только администратору.")
+        return
+    if not onec_configured():
+        await message.answer(
+            "1С не настроена. Укажите ONEC_ENABLED=true и ONEC_BASE_URL в .env "
+            "(см. docs/onec.md)."
+        )
+        return
+    await message.answer("Синхронизация номенклатуры с 1С…")
+    mirrors = [
+        p
+        for p in (
+            BASE_DIR / "mobile" / "data" / "parts.json",
+            BASE_DIR / "mobile" / "www" / "parts.json",
+        )
+        if p.parent.exists()
+    ]
+    result = await asyncio.to_thread(sync_catalog, mirror_paths=mirrors)
+    if not result.ok:
+        await message.answer(f"Ошибка синхронизации: {result.message}")
+        return
+    catalog.reload()
+    await message.answer(
+        f"1С → каталог: {result.count} позиций.\nФайл: <code>{result.path}</code>",
+        parse_mode="HTML",
+        reply_markup=main_menu(),
+    )
+
+
 @dp.message(Command("photo"))
 @dp.message(F.text.contains("Фото"))
 async def cmd_photo(message: Message, state: FSMContext) -> None:
@@ -404,17 +441,32 @@ async def place_order(message: Message, note: str = "", phone: str = "") -> None
         f"{summary}"
     )
 
+    onec_line = ""
     try:
-        save_order(
+        _path, _record, onec_result = await asyncio.to_thread(
+            save_order,
             user_id=user.id,
             full_name=user.full_name,
             username=user.username,
             cart=cart,
             note=note,
             phone=phone,
+            source="telegram",
+            push_to_onec=True,
         )
+        if onec_result is not None:
+            if onec_result.skipped:
+                onec_line = "\n\n1С: локально (интеграция выключена)"
+            elif onec_result.ok:
+                num = f" №{onec_result.number}" if onec_result.number else ""
+                onec_line = f"\n\n1С: заказ{num} принят"
+                operator_text += f"\n\n1С:{num} {onec_result.message}"
+            else:
+                onec_line = f"\n\n⚠ 1С: {onec_result.message}"
+                operator_text += f"\n\n⚠ 1С: {onec_result.message}"
     except Exception:
-        logger.exception("Не удалось записать заявку в журнал")
+        logger.exception("Не удалось записать заявку в журнал / 1С")
+        onec_line = "\n\n⚠ Не удалось отправить в 1С — заявка у менеджера"
 
     if OPERATOR_CHAT_ID and bot is not None:
         try:
@@ -427,7 +479,7 @@ async def place_order(message: Message, note: str = "", phone: str = "") -> None
             logger.exception("Не удалось отправить заявку оператору")
 
     await message.answer(
-        "Заявка принята! Менеджер свяжется с вами.\n\n" + summary,
+        "Заявка принята! Менеджер свяжется с вами.\n\n" + summary + onec_line,
         parse_mode="HTML",
         reply_markup=main_menu(),
     )

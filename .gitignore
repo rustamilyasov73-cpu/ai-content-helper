@@ -2,5 +2,16 @@
 .venv/
 __pycache__/
 *.pyc
+.pytest_cache/
 logs/
+*.log
 .DS_Store
+node_modules/
+.expo/
+dist/
+web-build/
+*.jks
+*.p8
+*.p12
+*.mobileprovision
+*.orig.*

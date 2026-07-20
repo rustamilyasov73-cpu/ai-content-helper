@@ -1,0 +1,1867 @@
+[
+  {
+    "id": "p001",
+    "sku": "RE507922",
+    "name": "Фильтр масляный двигателя",
+    "category": "filters",
+    "brand": "John Deere",
+    "compatible": [
+      "6R",
+      "7R",
+      "8R"
+    ],
+    "price": 2890,
+    "stock": 24,
+    "unit": "шт",
+    "description": "Оригинальный масляный фильтр для тракторов John Deere серий 6R–8R."
+  },
+  {
+    "id": "p002",
+    "sku": "AZ31445",
+    "name": "Фильтр топливный тонкой очистки",
+    "category": "filters",
+    "brand": "CLAAS",
+    "compatible": [
+      "LEXION",
+      "TUCANO"
+    ],
+    "price": 3450,
+    "stock": 12,
+    "unit": "шт",
+    "description": "Топливный фильтр для комбайнов CLAAS LEXION и TUCANO."
+  },
+  {
+    "id": "p003",
+    "sku": "V836089980",
+    "name": "Ремень приводной",
+    "category": "belts",
+    "brand": "New Holland",
+    "compatible": [
+      "T6",
+      "T7"
+    ],
+    "price": 5120,
+    "stock": 8,
+    "unit": "шт",
+    "description": "Приводной ремень для тракторов New Holland T6/T7."
+  },
+  {
+    "id": "p004",
+    "sku": "0.012.4890.0",
+    "name": "Подшипник ступицы",
+    "category": "bearings",
+    "brand": "ROPA",
+    "compatible": [
+      "euro-Tiger",
+      "Panther"
+    ],
+    "price": 8740,
+    "stock": 5,
+    "unit": "шт",
+    "description": "Ступичный подшипник для свеклоуборочной техники ROPA."
+  },
+  {
+    "id": "p005",
+    "sku": "KK06696880",
+    "name": "Нож измельчителя",
+    "category": "cutting",
+    "brand": "Krone",
+    "compatible": [
+      "Big X",
+      "BiG M"
+    ],
+    "price": 1960,
+    "stock": 40,
+    "unit": "шт",
+    "description": "Сменный нож измельчителя для кормоуборочных комбайнов Krone."
+  },
+  {
+    "id": "p006",
+    "sku": "84147216",
+    "name": "Гидронасос рулевого управления",
+    "category": "hydraulics",
+    "brand": "Case IH",
+    "compatible": [
+      "Magnum",
+      "Puma"
+    ],
+    "price": 68500,
+    "stock": 2,
+    "unit": "шт",
+    "description": "Насос ГУР для тракторов Case IH Magnum и Puma."
+  },
+  {
+    "id": "p007",
+    "sku": "AL156625",
+    "name": "Датчик давления масла",
+    "category": "electrics",
+    "brand": "John Deere",
+    "compatible": [
+      "5R",
+      "6M",
+      "6R"
+    ],
+    "price": 2340,
+    "stock": 18,
+    "unit": "шт",
+    "description": "Датчик давления масла двигателя John Deere."
+  },
+  {
+    "id": "p008",
+    "sku": "0006531810",
+    "name": "Цепь транспортёра",
+    "category": "chains",
+    "brand": "CLAAS",
+    "compatible": [
+      "JAGUAR"
+    ],
+    "price": 15400,
+    "stock": 3,
+    "unit": "м",
+    "description": "Транспортёрная цепь для кормоуборочных комбайнов CLAAS JAGUAR."
+  },
+  {
+    "id": "p009",
+    "sku": "VXE71076",
+    "name": "Втулка балансира",
+    "category": "chassis",
+    "brand": "МТЗ",
+    "compatible": [
+      "82.1",
+      "1221",
+      "1523"
+    ],
+    "price": 890,
+    "stock": 55,
+    "unit": "шт",
+    "description": "Втулка балансира переднего моста для тракторов МТЗ."
+  },
+  {
+    "id": "p010",
+    "sku": "A77916",
+    "name": "Фильтр воздушный",
+    "category": "filters",
+    "brand": "Donaldson",
+    "compatible": [
+      "универсальный"
+    ],
+    "price": 4180,
+    "stock": 15,
+    "unit": "шт",
+    "description": "Воздушный фильтр повышенной пылеёмкости для полевых условий."
+  },
+  {
+    "id": "p011",
+    "sku": "Z33725",
+    "name": "Сегмент ножа жатки",
+    "category": "cutting",
+    "brand": "Schumacher",
+    "compatible": [
+      "John Deere",
+      "CLAAS",
+      "New Holland"
+    ],
+    "price": 420,
+    "stock": 120,
+    "unit": "шт",
+    "description": "Сегмент режущего аппарата жатки, совместим с основными брендами."
+  },
+  {
+    "id": "p012",
+    "sku": "84546659",
+    "name": "Радиатор охлаждения",
+    "category": "cooling",
+    "brand": "New Holland",
+    "compatible": [
+      "CR",
+      "CX"
+    ],
+    "price": 94200,
+    "stock": 1,
+    "unit": "шт",
+    "description": "Радиатор системы охлаждения для комбайнов New Holland CR/CX."
+  },
+  {
+    "id": "p013",
+    "sku": "RE541922",
+    "name": "Фильтр гидравлический",
+    "category": "filters",
+    "brand": "John Deere",
+    "compatible": [
+      "6R",
+      "7R"
+    ],
+    "price": 6750,
+    "stock": 9,
+    "unit": "шт",
+    "description": "Фильтр гидравлической системы John Deere 6R/7R."
+  },
+  {
+    "id": "p014",
+    "sku": "70-1505040",
+    "name": "Диск сцепления",
+    "category": "chassis",
+    "brand": "МТЗ",
+    "compatible": [
+      "80",
+      "82.1"
+    ],
+    "price": 12800,
+    "stock": 4,
+    "unit": "шт",
+    "description": "Ведомый диск сцепления для тракторов МТЗ-80/82."
+  },
+  {
+    "id": "p015",
+    "sku": "0007466130",
+    "name": "Ролик натяжителя",
+    "category": "belts",
+    "brand": "CLAAS",
+    "compatible": [
+      "LEXION"
+    ],
+    "price": 9320,
+    "stock": 6,
+    "unit": "шт",
+    "description": "Ролик натяжителя приводного ремня CLAAS LEXION."
+  },
+  {
+    "id": "p016",
+    "sku": "RE509632",
+    "name": "Фильтр топливный первичный",
+    "category": "filters",
+    "brand": "John Deere",
+    "compatible": [
+      "6R",
+      "6M",
+      "7R"
+    ],
+    "price": 3120,
+    "stock": 22,
+    "unit": "шт",
+    "description": "Первичный топливный фильтр для тракторов John Deere 6R/6M/7R."
+  },
+  {
+    "id": "p017",
+    "sku": "RE525523",
+    "name": "Фильтр кабинный",
+    "category": "filters",
+    "brand": "John Deere",
+    "compatible": [
+      "6R",
+      "7R",
+      "8R"
+    ],
+    "price": 4580,
+    "stock": 14,
+    "unit": "шт",
+    "description": "Фильтр вентиляции кабины с угольным элементом."
+  },
+  {
+    "id": "p018",
+    "sku": "0006515990",
+    "name": "Фильтр масляный гидросистемы",
+    "category": "filters",
+    "brand": "CLAAS",
+    "compatible": [
+      "LEXION",
+      "TUCANO",
+      "TRION"
+    ],
+    "price": 7890,
+    "stock": 7,
+    "unit": "шт",
+    "description": "Масляный фильтр гидравлики комбайнов CLAAS."
+  },
+  {
+    "id": "p019",
+    "sku": "AZ54687",
+    "name": "Фильтр воздушный наружный",
+    "category": "filters",
+    "brand": "CLAAS",
+    "compatible": [
+      "JAGUAR",
+      "LEXION"
+    ],
+    "price": 9650,
+    "stock": 9,
+    "unit": "шт",
+    "description": "Наружный воздушный фильтр повышенной пылеёмкости."
+  },
+  {
+    "id": "p020",
+    "sku": "84176715",
+    "name": "Фильтр масляный двигателя",
+    "category": "filters",
+    "brand": "Case IH",
+    "compatible": [
+      "Puma",
+      "Maxxum",
+      "Magnum"
+    ],
+    "price": 2680,
+    "stock": 30,
+    "unit": "шт",
+    "description": "Масляный фильтр двигателя Case IH Puma/Maxxum/Magnum."
+  },
+  {
+    "id": "p021",
+    "sku": "87300196",
+    "name": "Фильтр гидравлический",
+    "category": "filters",
+    "brand": "Case IH",
+    "compatible": [
+      "Axial-Flow",
+      "Puma"
+    ],
+    "price": 7120,
+    "stock": 11,
+    "unit": "шт",
+    "description": "Фильтр гидросистемы Case IH Axial-Flow и Puma."
+  },
+  {
+    "id": "p022",
+    "sku": "87803188",
+    "name": "Фильтр топливный",
+    "category": "filters",
+    "brand": "New Holland",
+    "compatible": [
+      "T6",
+      "T7",
+      "T8"
+    ],
+    "price": 2950,
+    "stock": 19,
+    "unit": "шт",
+    "description": "Топливный фильтр тракторов New Holland T6–T8."
+  },
+  {
+    "id": "p023",
+    "sku": "84332827",
+    "name": "Фильтр воздушный",
+    "category": "filters",
+    "brand": "New Holland",
+    "compatible": [
+      "CR",
+      "CX",
+      "TC"
+    ],
+    "price": 6240,
+    "stock": 8,
+    "unit": "шт",
+    "description": "Воздушный фильтр комбайнов New Holland CR/CX/TC."
+  },
+  {
+    "id": "p024",
+    "sku": "F026400391",
+    "name": "Фильтр топливный тонкой очистки",
+    "category": "filters",
+    "brand": "Bosch",
+    "compatible": [
+      "МТЗ",
+      "Ростсельмаш",
+      "универсальный"
+    ],
+    "price": 1890,
+    "stock": 45,
+    "unit": "шт",
+    "description": "Универсальный топливный фильтр Bosch для дизельных двигателей."
+  },
+  {
+    "id": "p025",
+    "sku": "W95021",
+    "name": "Фильтр масляный",
+    "category": "filters",
+    "brand": "MANN-FILTER",
+    "compatible": [
+      "МТЗ-82",
+      "1221",
+      "1523"
+    ],
+    "price": 980,
+    "stock": 60,
+    "unit": "шт",
+    "description": "Масляный фильтр MANN для тракторов МТЗ."
+  },
+  {
+    "id": "p026",
+    "sku": "C271130",
+    "name": "Фильтр воздушный",
+    "category": "filters",
+    "brand": "MANN-FILTER",
+    "compatible": [
+      "МТЗ",
+      "Кировец"
+    ],
+    "price": 2450,
+    "stock": 28,
+    "unit": "шт",
+    "description": "Воздушный фильтр MANN для тракторов МТЗ и Кировец."
+  },
+  {
+    "id": "p027",
+    "sku": "P821575",
+    "name": "Фильтр воздушный PowerCore",
+    "category": "filters",
+    "brand": "Donaldson",
+    "compatible": [
+      "John Deere",
+      "Case IH",
+      "New Holland"
+    ],
+    "price": 8750,
+    "stock": 10,
+    "unit": "шт",
+    "description": "Воздушный фильтр Donaldson PowerCore для тяжёлой техники."
+  },
+  {
+    "id": "p028",
+    "sku": "X770215140",
+    "name": "Фильтр гидравлический",
+    "category": "filters",
+    "brand": "Fendt",
+    "compatible": [
+      "700 Vario",
+      "800 Vario",
+      "900 Vario"
+    ],
+    "price": 11200,
+    "stock": 5,
+    "unit": "шт",
+    "description": "Фильтр гидросистемы Fendt Vario 700–900."
+  },
+  {
+    "id": "p029",
+    "sku": "3903643M1",
+    "name": "Фильтр топливный",
+    "category": "filters",
+    "brand": "Massey Ferguson",
+    "compatible": [
+      "5700",
+      "6700",
+      "7700"
+    ],
+    "price": 2760,
+    "stock": 16,
+    "unit": "шт",
+    "description": "Топливный фильтр тракторов Massey Ferguson 5700–7700."
+  },
+  {
+    "id": "p030",
+    "sku": "HH164-32430",
+    "name": "Фильтр масляный",
+    "category": "filters",
+    "brand": "Kubota",
+    "compatible": [
+      "M7",
+      "M5",
+      "M6"
+    ],
+    "price": 2140,
+    "stock": 20,
+    "unit": "шт",
+    "description": "Масляный фильтр тракторов Kubota серии M."
+  },
+  {
+    "id": "p031",
+    "sku": "ACX1695140",
+    "name": "Фильтр воздушный кабины",
+    "category": "filters",
+    "brand": "Ростсельмаш",
+    "compatible": [
+      "TORUM",
+      "ACROS",
+      "VECTOR"
+    ],
+    "price": 1890,
+    "stock": 25,
+    "unit": "шт",
+    "description": "Кабинный фильтр комбайнов Ростсельмаш."
+  },
+  {
+    "id": "p032",
+    "sku": "H211931",
+    "name": "Ремень вентилятора",
+    "category": "belts",
+    "brand": "John Deere",
+    "compatible": [
+      "6R",
+      "7R"
+    ],
+    "price": 3850,
+    "stock": 17,
+    "unit": "шт",
+    "description": "Клиновой ремень привода вентилятора John Deere."
+  },
+  {
+    "id": "p033",
+    "sku": "HXE12817",
+    "name": "Ремень вариатора жатки",
+    "category": "belts",
+    "brand": "John Deere",
+    "compatible": [
+      "S660",
+      "S670",
+      "S680"
+    ],
+    "price": 14600,
+    "stock": 4,
+    "unit": "шт",
+    "description": "Ремень вариатора жатки комбайнов John Deere S-серии."
+  },
+  {
+    "id": "p034",
+    "sku": "0007466150",
+    "name": "Ремень привода молотилки",
+    "category": "belts",
+    "brand": "CLAAS",
+    "compatible": [
+      "LEXION",
+      "TRION"
+    ],
+    "price": 18750,
+    "stock": 3,
+    "unit": "шт",
+    "description": "Главный приводной ремень молотильного аппарата CLAAS."
+  },
+  {
+    "id": "p035",
+    "sku": "84149254",
+    "name": "Ремень генератора",
+    "category": "belts",
+    "brand": "Case IH",
+    "compatible": [
+      "Puma",
+      "Maxxum"
+    ],
+    "price": 2980,
+    "stock": 21,
+    "unit": "шт",
+    "description": "Ремень привода генератора Case IH."
+  },
+  {
+    "id": "p036",
+    "sku": "87300951",
+    "name": "Ремень жатки",
+    "category": "belts",
+    "brand": "New Holland",
+    "compatible": [
+      "CR",
+      "CX"
+    ],
+    "price": 13200,
+    "stock": 5,
+    "unit": "шт",
+    "description": "Приводной ремень жатки New Holland CR/CX."
+  },
+  {
+    "id": "p037",
+    "sku": "9PK1870",
+    "name": "Ремень поликлиновой",
+    "category": "belts",
+    "brand": "Gates",
+    "compatible": [
+      "МТЗ",
+      "ЯМЗ",
+      "универсальный"
+    ],
+    "price": 1650,
+    "stock": 35,
+    "unit": "шт",
+    "description": "Поликлиновой ремень Gates для дизельных двигателей."
+  },
+  {
+    "id": "p038",
+    "sku": "AX128",
+    "name": "Ремень клиновой AX",
+    "category": "belts",
+    "brand": "Gates",
+    "compatible": [
+      "МТЗ-82",
+      "ЮМЗ"
+    ],
+    "price": 780,
+    "stock": 50,
+    "unit": "шт",
+    "description": "Классический клиновой ремень профиля AX."
+  },
+  {
+    "id": "p039",
+    "sku": "KK0158420",
+    "name": "Ремень измельчителя",
+    "category": "belts",
+    "brand": "Krone",
+    "compatible": [
+      "Big X",
+      "BiG X 680"
+    ],
+    "price": 21400,
+    "stock": 2,
+    "unit": "шт",
+    "description": "Ремень привода измельчителя Krone Big X."
+  },
+  {
+    "id": "p040",
+    "sku": "X770215890",
+    "name": "Ремень вентилятора",
+    "category": "belts",
+    "brand": "Fendt",
+    "compatible": [
+      "700 Vario",
+      "800 Vario"
+    ],
+    "price": 4520,
+    "stock": 8,
+    "unit": "шт",
+    "description": "Ремень вентилятора системы охлаждения Fendt."
+  },
+  {
+    "id": "p041",
+    "sku": "ACX1678820",
+    "name": "Ремень сепарирующего барабана",
+    "category": "belts",
+    "brand": "Ростсельмаш",
+    "compatible": [
+      "TORUM",
+      "RSM 161"
+    ],
+    "price": 9800,
+    "stock": 6,
+    "unit": "шт",
+    "description": "Приводной ремень сепарации Ростсельмаш TORUM."
+  },
+  {
+    "id": "p042",
+    "sku": "JD9358",
+    "name": "Подшипник сферический",
+    "category": "bearings",
+    "brand": "John Deere",
+    "compatible": [
+      "S660",
+      "S670",
+      "6R"
+    ],
+    "price": 4280,
+    "stock": 18,
+    "unit": "шт",
+    "description": "Сферический подшипник узлов John Deere."
+  },
+  {
+    "id": "p043",
+    "sku": "AH205854",
+    "name": "Подшипник вала соломотряса",
+    "category": "bearings",
+    "brand": "John Deere",
+    "compatible": [
+      "W650",
+      "W660",
+      "T560"
+    ],
+    "price": 6750,
+    "stock": 7,
+    "unit": "шт",
+    "description": "Подшипник вала соломотряса комбайнов John Deere."
+  },
+  {
+    "id": "p044",
+    "sku": "0006501540",
+    "name": "Подшипник барабана",
+    "category": "bearings",
+    "brand": "CLAAS",
+    "compatible": [
+      "LEXION",
+      "TUCANO"
+    ],
+    "price": 11200,
+    "stock": 4,
+    "unit": "шт",
+    "description": "Опорный подшипник молотильного барабана CLAAS."
+  },
+  {
+    "id": "p045",
+    "sku": "22216E",
+    "name": "Подшипник роликовый сферический",
+    "category": "bearings",
+    "brand": "SKF",
+    "compatible": [
+      "универсальный"
+    ],
+    "price": 5890,
+    "stock": 12,
+    "unit": "шт",
+    "description": "Сферический роликовый подшипник SKF 22216 E."
+  },
+  {
+    "id": "p046",
+    "sku": "6208-2RS",
+    "name": "Подшипник закрытый",
+    "category": "bearings",
+    "brand": "SKF",
+    "compatible": [
+      "МТЗ",
+      "CLAAS",
+      "универсальный"
+    ],
+    "price": 890,
+    "stock": 80,
+    "unit": "шт",
+    "description": "Шариковый подшипник 6208-2RS с двухсторонним уплотнением."
+  },
+  {
+    "id": "p047",
+    "sku": "UC208",
+    "name": "Подшипник в корпусе",
+    "category": "bearings",
+    "brand": "SKF",
+    "compatible": [
+      "жатки",
+      "транспортёры"
+    ],
+    "price": 2450,
+    "stock": 26,
+    "unit": "шт",
+    "description": "Вставной подшипник UC208 для корпусов жаток и транспортёров."
+  },
+  {
+    "id": "p048",
+    "sku": "0.010.2781.0",
+    "name": "Подшипник опорный",
+    "category": "bearings",
+    "brand": "ROPA",
+    "compatible": [
+      "euro-Tiger",
+      "Panther 2"
+    ],
+    "price": 13400,
+    "stock": 3,
+    "unit": "шт",
+    "description": "Опорный подшипник узлов свеклоуборочной техники ROPA."
+  },
+  {
+    "id": "p049",
+    "sku": "KK0156120",
+    "name": "Подшипник ротора",
+    "category": "bearings",
+    "brand": "Krone",
+    "compatible": [
+      "Big X",
+      "BiG M"
+    ],
+    "price": 15600,
+    "stock": 2,
+    "unit": "шт",
+    "description": "Подшипник ротора измельчителя Krone."
+  },
+  {
+    "id": "p050",
+    "sku": "87517258",
+    "name": "Подшипник ступицы колеса",
+    "category": "bearings",
+    "brand": "Case IH",
+    "compatible": [
+      "Magnum",
+      "Steiger"
+    ],
+    "price": 18900,
+    "stock": 4,
+    "unit": "шт",
+    "description": "Ступичный подшипник тракторов Case IH Magnum/Steiger."
+  },
+  {
+    "id": "p051",
+    "sku": "70-3103025",
+    "name": "Подшипник вала ВОМ",
+    "category": "bearings",
+    "brand": "МТЗ",
+    "compatible": [
+      "80",
+      "82.1",
+      "1221"
+    ],
+    "price": 1680,
+    "stock": 22,
+    "unit": "шт",
+    "description": "Подшипник вала отбора мощности МТЗ."
+  },
+  {
+    "id": "p052",
+    "sku": "H215347",
+    "name": "Палец ножа жатки",
+    "category": "cutting",
+    "brand": "John Deere",
+    "compatible": [
+      "600F",
+      "630D",
+      "640FD"
+    ],
+    "price": 680,
+    "stock": 90,
+    "unit": "шт",
+    "description": "Палец режущего аппарата жатки John Deere."
+  },
+  {
+    "id": "p053",
+    "sku": "AH128199",
+    "name": "Нож жатки в сборе",
+    "category": "cutting",
+    "brand": "John Deere",
+    "compatible": [
+      "S660",
+      "S670",
+      "S680"
+    ],
+    "price": 48500,
+    "stock": 2,
+    "unit": "шт",
+    "description": "Полный нож жатки в сборе для комбайнов John Deere S."
+  },
+  {
+    "id": "p054",
+    "sku": "0006521140",
+    "name": "Сегмент ножа",
+    "category": "cutting",
+    "brand": "CLAAS",
+    "compatible": [
+      "LEXION",
+      "TUCANO",
+      "TRION"
+    ],
+    "price": 390,
+    "stock": 200,
+    "unit": "шт",
+    "description": "Сегмент режущего аппарата жатки CLAAS."
+  },
+  {
+    "id": "p055",
+    "sku": "0006521800",
+    "name": "Противорез",
+    "category": "cutting",
+    "brand": "CLAAS",
+    "compatible": [
+      "JAGUAR",
+      "LEXION"
+    ],
+    "price": 1250,
+    "stock": 40,
+    "unit": "шт",
+    "description": "Противорежущая пластина измельчителя CLAAS."
+  },
+  {
+    "id": "p056",
+    "sku": "87532964",
+    "name": "Нож измельчителя",
+    "category": "cutting",
+    "brand": "Case IH",
+    "compatible": [
+      "Axial-Flow 250",
+      "Axial-Flow 150"
+    ],
+    "price": 2140,
+    "stock": 35,
+    "unit": "шт",
+    "description": "Нож соломоизмельчителя Case IH Axial-Flow."
+  },
+  {
+    "id": "p057",
+    "sku": "84333012",
+    "name": "Сегмент ножа жатки",
+    "category": "cutting",
+    "brand": "New Holland",
+    "compatible": [
+      "CR",
+      "CX",
+      "TC"
+    ],
+    "price": 450,
+    "stock": 150,
+    "unit": "шт",
+    "description": "Сегмент ножа жатки New Holland."
+  },
+  {
+    "id": "p058",
+    "sku": "KK06696900",
+    "name": "Противорез измельчителя",
+    "category": "cutting",
+    "brand": "Krone",
+    "compatible": [
+      "Big X",
+      "BiG X 1180"
+    ],
+    "price": 1780,
+    "stock": 28,
+    "unit": "шт",
+    "description": "Противорез к ножам измельчителя Krone Big X."
+  },
+  {
+    "id": "p059",
+    "sku": "Z33730",
+    "name": "Палец ножа Pro-Cut",
+    "category": "cutting",
+    "brand": "Schumacher",
+    "compatible": [
+      "John Deere",
+      "CLAAS",
+      "New Holland",
+      "Case IH"
+    ],
+    "price": 740,
+    "stock": 110,
+    "unit": "шт",
+    "description": "Палец Pro-Cut Schumacher для большинства жаток."
+  },
+  {
+    "id": "p060",
+    "sku": "ACX1654210",
+    "name": "Сегмент ножа",
+    "category": "cutting",
+    "brand": "Ростсельмаш",
+    "compatible": [
+      "TORUM",
+      "ACROS",
+      "VECTOR"
+    ],
+    "price": 310,
+    "stock": 180,
+    "unit": "шт",
+    "description": "Сегмент режущего аппарата жатки Ростсельмаш."
+  },
+  {
+    "id": "p061",
+    "sku": "G00039780",
+    "name": "Лемех плуга",
+    "category": "cutting",
+    "brand": "Lemken",
+    "compatible": [
+      "Juwel",
+      "Diamant",
+      "Europal"
+    ],
+    "price": 4250,
+    "stock": 24,
+    "unit": "шт",
+    "description": "Лемех плуга Lemken для серий Juwel и Diamant."
+  },
+  {
+    "id": "p062",
+    "sku": "G00038870",
+    "name": "Отвал плужный",
+    "category": "cutting",
+    "brand": "Lemken",
+    "compatible": [
+      "Juwel",
+      "Diamant"
+    ],
+    "price": 6890,
+    "stock": 12,
+    "unit": "шт",
+    "description": "Отвал корпуса плуга Lemken."
+  },
+  {
+    "id": "p063",
+    "sku": "952358",
+    "name": "Диск сошника",
+    "category": "cutting",
+    "brand": "Amazone",
+    "compatible": [
+      "Cirrus",
+      "Cataya",
+      "Centaia"
+    ],
+    "price": 3180,
+    "stock": 30,
+    "unit": "шт",
+    "description": "Дисковый сошник сеялок Amazone."
+  },
+  {
+    "id": "p064",
+    "sku": "KK06697010",
+    "name": "Нож роторной косилки",
+    "category": "cutting",
+    "brand": "Krone",
+    "compatible": [
+      "EasyCut",
+      "ActiveMow"
+    ],
+    "price": 520,
+    "stock": 95,
+    "unit": "шт",
+    "description": "Сменный нож роторной косилки Krone."
+  },
+  {
+    "id": "p065",
+    "sku": "RE211186",
+    "name": "Гидроцилиндр подъёма",
+    "category": "hydraulics",
+    "brand": "John Deere",
+    "compatible": [
+      "6R",
+      "7R"
+    ],
+    "price": 42800,
+    "stock": 3,
+    "unit": "шт",
+    "description": "Гидроцилиндр подъёма навески John Deere 6R/7R."
+  },
+  {
+    "id": "p066",
+    "sku": "AL176548",
+    "name": "Распределитель гидравлический",
+    "category": "hydraulics",
+    "brand": "John Deere",
+    "compatible": [
+      "6R",
+      "6M"
+    ],
+    "price": 95600,
+    "stock": 1,
+    "unit": "шт",
+    "description": "Основной гидрораспределитель трактора John Deere."
+  },
+  {
+    "id": "p067",
+    "sku": "0006518200",
+    "name": "Гидромотор вентилятора",
+    "category": "hydraulics",
+    "brand": "CLAAS",
+    "compatible": [
+      "LEXION",
+      "JAGUAR"
+    ],
+    "price": 78500,
+    "stock": 2,
+    "unit": "шт",
+    "description": "Гидромотор привода вентилятора охлаждения CLAAS."
+  },
+  {
+    "id": "p068",
+    "sku": "87545721",
+    "name": "Гидроцилиндр рулевой",
+    "category": "hydraulics",
+    "brand": "Case IH",
+    "compatible": [
+      "Magnum",
+      "Puma",
+      "Steiger"
+    ],
+    "price": 54200,
+    "stock": 2,
+    "unit": "шт",
+    "description": "Рулевой гидроцилиндр Case IH."
+  },
+  {
+    "id": "p069",
+    "sku": "84178456",
+    "name": "Насос гидросистемы",
+    "category": "hydraulics",
+    "brand": "Case IH",
+    "compatible": [
+      "Puma",
+      "Maxxum"
+    ],
+    "price": 124000,
+    "stock": 1,
+    "unit": "шт",
+    "description": "Основной насос гидросистемы Case IH Puma/Maxxum."
+  },
+  {
+    "id": "p070",
+    "sku": "87301245",
+    "name": "Гидроцилиндр жатки",
+    "category": "hydraulics",
+    "brand": "New Holland",
+    "compatible": [
+      "CR",
+      "CX"
+    ],
+    "price": 35600,
+    "stock": 3,
+    "unit": "шт",
+    "description": "Гидроцилиндр подъёма жатки New Holland."
+  },
+  {
+    "id": "p071",
+    "sku": "70-4607015",
+    "name": "Гидроцилиндр ЦС-75",
+    "category": "hydraulics",
+    "brand": "МТЗ",
+    "compatible": [
+      "80",
+      "82.1",
+      "1221"
+    ],
+    "price": 8900,
+    "stock": 10,
+    "unit": "шт",
+    "description": "Силовой гидроцилиндр ЦС-75 для навески МТЗ."
+  },
+  {
+    "id": "p072",
+    "sku": "NSh-32U",
+    "name": "Насос шестерённый НШ-32",
+    "category": "hydraulics",
+    "brand": "МТЗ",
+    "compatible": [
+      "МТЗ",
+      "ЮМЗ",
+      "Т-150"
+    ],
+    "price": 6450,
+    "stock": 15,
+    "unit": "шт",
+    "description": "Шестерённый насос НШ-32У для гидросистем тракторов."
+  },
+  {
+    "id": "p073",
+    "sku": "R902232949",
+    "name": "Гидронасос аксиально-поршневой",
+    "category": "hydraulics",
+    "brand": "Bosch",
+    "compatible": [
+      "Fendt",
+      "CLAAS",
+      "John Deere"
+    ],
+    "price": 185000,
+    "stock": 1,
+    "unit": "шт",
+    "description": "Аксиально-поршневой насос Bosch Rexroth."
+  },
+  {
+    "id": "p074",
+    "sku": "0.011.3450.0",
+    "name": "Гидроцилиндр подъёмника",
+    "category": "hydraulics",
+    "brand": "ROPA",
+    "compatible": [
+      "euro-Tiger",
+      "Panther"
+    ],
+    "price": 67800,
+    "stock": 2,
+    "unit": "шт",
+    "description": "Гидроцилиндр подъёмного механизма ROPA."
+  },
+  {
+    "id": "p075",
+    "sku": "KK0156780",
+    "name": "Рукав высокого давления",
+    "category": "hydraulics",
+    "brand": "Krone",
+    "compatible": [
+      "Big X",
+      "BiG M",
+      "EasyCut"
+    ],
+    "price": 4200,
+    "stock": 18,
+    "unit": "шт",
+    "description": "РВД в сборе с фитингами для техники Krone."
+  },
+  {
+    "id": "p076",
+    "sku": "X770230120",
+    "name": "Блок клапанов",
+    "category": "hydraulics",
+    "brand": "Fendt",
+    "compatible": [
+      "700 Vario",
+      "900 Vario"
+    ],
+    "price": 142000,
+    "stock": 1,
+    "unit": "шт",
+    "description": "Блок пропорциональных клапанов гидравлики Fendt Vario."
+  },
+  {
+    "id": "p077",
+    "sku": "RE522878",
+    "name": "Датчик температуры ОЖ",
+    "category": "electrics",
+    "brand": "John Deere",
+    "compatible": [
+      "5R",
+      "6M",
+      "6R",
+      "7R"
+    ],
+    "price": 1980,
+    "stock": 25,
+    "unit": "шт",
+    "description": "Датчик температуры охлаждающей жидкости John Deere."
+  },
+  {
+    "id": "p078",
+    "sku": "RE543790",
+    "name": "Датчик уровня топлива",
+    "category": "electrics",
+    "brand": "John Deere",
+    "compatible": [
+      "6R",
+      "7R",
+      "8R"
+    ],
+    "price": 8750,
+    "stock": 6,
+    "unit": "шт",
+    "description": "Датчик уровня топлива в баке John Deere."
+  },
+  {
+    "id": "p079",
+    "sku": "AL174294",
+    "name": "Генератор 14V 150A",
+    "category": "electrics",
+    "brand": "John Deere",
+    "compatible": [
+      "6R",
+      "7R"
+    ],
+    "price": 48500,
+    "stock": 2,
+    "unit": "шт",
+    "description": "Генератор 14 В / 150 А для тракторов John Deere."
+  },
+  {
+    "id": "p080",
+    "sku": "0006534210",
+    "name": "Датчик оборотов",
+    "category": "electrics",
+    "brand": "CLAAS",
+    "compatible": [
+      "LEXION",
+      "TUCANO",
+      "JAGUAR"
+    ],
+    "price": 5640,
+    "stock": 9,
+    "unit": "шт",
+    "description": "Индуктивный датчик оборотов вала CLAAS."
+  },
+  {
+    "id": "p081",
+    "sku": "0006548900",
+    "name": "Блок управления двигателем",
+    "category": "electrics",
+    "brand": "CLAAS",
+    "compatible": [
+      "LEXION 700",
+      "LEXION 8000"
+    ],
+    "price": 215000,
+    "stock": 1,
+    "unit": "шт",
+    "description": "ECU двигателя комбайнов CLAAS LEXION."
+  },
+  {
+    "id": "p082",
+    "sku": "87520134",
+    "name": "Стартер",
+    "category": "electrics",
+    "brand": "Case IH",
+    "compatible": [
+      "Puma",
+      "Maxxum",
+      "Magnum"
+    ],
+    "price": 39200,
+    "stock": 3,
+    "unit": "шт",
+    "description": "Стартер 24 В для тракторов Case IH."
+  },
+  {
+    "id": "p083",
+    "sku": "84175621",
+    "name": "Датчик давления топлива",
+    "category": "electrics",
+    "brand": "Case IH",
+    "compatible": [
+      "Puma",
+      "Magnum"
+    ],
+    "price": 6780,
+    "stock": 8,
+    "unit": "шт",
+    "description": "Датчик давления в рампе Common Rail Case IH."
+  },
+  {
+    "id": "p084",
+    "sku": "87804512",
+    "name": "Выключатель массы",
+    "category": "electrics",
+    "brand": "New Holland",
+    "compatible": [
+      "T6",
+      "T7",
+      "CR",
+      "CX"
+    ],
+    "price": 2450,
+    "stock": 14,
+    "unit": "шт",
+    "description": "Главный выключатель массы New Holland."
+  },
+  {
+    "id": "p085",
+    "sku": "0 986 041 790",
+    "name": "Свеча накаливания",
+    "category": "electrics",
+    "brand": "Bosch",
+    "compatible": [
+      "МТЗ",
+      "ЯМЗ",
+      "Д-245"
+    ],
+    "price": 890,
+    "stock": 40,
+    "unit": "шт",
+    "description": "Свеча накаливания Bosch для дизелей Д-245/ЯМЗ."
+  },
+  {
+    "id": "p086",
+    "sku": "70-3701010",
+    "name": "Генератор Г1000",
+    "category": "electrics",
+    "brand": "МТЗ",
+    "compatible": [
+      "80",
+      "82.1",
+      "1221"
+    ],
+    "price": 12500,
+    "stock": 7,
+    "unit": "шт",
+    "description": "Генератор 14 В для тракторов МТЗ."
+  },
+  {
+    "id": "p087",
+    "sku": "70-3708010",
+    "name": "Стартер СТ-142",
+    "category": "electrics",
+    "brand": "МТЗ",
+    "compatible": [
+      "80",
+      "82.1"
+    ],
+    "price": 9800,
+    "stock": 5,
+    "unit": "шт",
+    "description": "Стартер СТ-142 для МТЗ-80/82."
+  },
+  {
+    "id": "p088",
+    "sku": "ACX1689010",
+    "name": "Датчик забивания соломотряса",
+    "category": "electrics",
+    "brand": "Ростсельмаш",
+    "compatible": [
+      "ACROS",
+      "VECTOR",
+      "TORUM"
+    ],
+    "price": 3200,
+    "stock": 11,
+    "unit": "шт",
+    "description": "Датчик контроля забивания соломотряса Ростсельмаш."
+  },
+  {
+    "id": "p089",
+    "sku": "AH128456",
+    "name": "Цепь транспортёра жатки",
+    "category": "chains",
+    "brand": "John Deere",
+    "compatible": [
+      "600F",
+      "630D",
+      "640FD"
+    ],
+    "price": 18600,
+    "stock": 4,
+    "unit": "м",
+    "description": "Цепь поперечного транспортёра жатки John Deere."
+  },
+  {
+    "id": "p090",
+    "sku": "0006531820",
+    "name": "Цепь зернового элеватора",
+    "category": "chains",
+    "brand": "CLAAS",
+    "compatible": [
+      "LEXION",
+      "TUCANO"
+    ],
+    "price": 14200,
+    "stock": 5,
+    "unit": "м",
+    "description": "Цепь зернового элеватора комбайнов CLAAS."
+  },
+  {
+    "id": "p091",
+    "sku": "87533412",
+    "name": "Цепь наклонной камеры",
+    "category": "chains",
+    "brand": "Case IH",
+    "compatible": [
+      "Axial-Flow 250",
+      "Axial-Flow 150"
+    ],
+    "price": 16800,
+    "stock": 3,
+    "unit": "м",
+    "description": "Цепь наклонной камеры Case IH Axial-Flow."
+  },
+  {
+    "id": "p092",
+    "sku": "84334120",
+    "name": "Цепь транспортёра",
+    "category": "chains",
+    "brand": "New Holland",
+    "compatible": [
+      "CR",
+      "CX"
+    ],
+    "price": 15400,
+    "stock": 4,
+    "unit": "м",
+    "description": "Транспортёрная цепь New Holland CR/CX."
+  },
+  {
+    "id": "p093",
+    "sku": "12B-1",
+    "name": "Цепь приводная 12B-1",
+    "category": "chains",
+    "brand": "SKF",
+    "compatible": [
+      "универсальный"
+    ],
+    "price": 980,
+    "stock": 40,
+    "unit": "м",
+    "description": "Приводная роликовая цепь 12B-1."
+  },
+  {
+    "id": "p094",
+    "sku": "16B-1",
+    "name": "Цепь приводная 16B-1",
+    "category": "chains",
+    "brand": "SKF",
+    "compatible": [
+      "универсальный"
+    ],
+    "price": 1450,
+    "stock": 30,
+    "unit": "м",
+    "description": "Приводная роликовая цепь 16B-1 усиленная."
+  },
+  {
+    "id": "p095",
+    "sku": "KK0158900",
+    "name": "Цепь подающего транспортёра",
+    "category": "chains",
+    "brand": "Krone",
+    "compatible": [
+      "Big X",
+      "BiG X 680"
+    ],
+    "price": 22400,
+    "stock": 2,
+    "unit": "м",
+    "description": "Цепь подающего транспортёра Krone Big X."
+  },
+  {
+    "id": "p096",
+    "sku": "0.013.2100.0",
+    "name": "Цепь элеватора свеклы",
+    "category": "chains",
+    "brand": "ROPA",
+    "compatible": [
+      "euro-Tiger",
+      "Panther",
+      "Tiger 6"
+    ],
+    "price": 27800,
+    "stock": 2,
+    "unit": "м",
+    "description": "Цепь элеватора свеклоуборочной машины ROPA."
+  },
+  {
+    "id": "p097",
+    "sku": "ACX1665400",
+    "name": "Цепь колосового элеватора",
+    "category": "chains",
+    "brand": "Ростсельмаш",
+    "compatible": [
+      "TORUM",
+      "ACROS"
+    ],
+    "price": 11200,
+    "stock": 6,
+    "unit": "м",
+    "description": "Цепь колосового элеватора Ростсельмаш."
+  },
+  {
+    "id": "p098",
+    "sku": "RE246212",
+    "name": "Шрус переднего моста",
+    "category": "chassis",
+    "brand": "John Deere",
+    "compatible": [
+      "6R",
+      "7R"
+    ],
+    "price": 38500,
+    "stock": 3,
+    "unit": "шт",
+    "description": "ШРУС переднего ведущего моста John Deere."
+  },
+  {
+    "id": "p099",
+    "sku": "AL172980",
+    "name": "Амортизатор кабины",
+    "category": "chassis",
+    "brand": "John Deere",
+    "compatible": [
+      "6R",
+      "7R",
+      "8R"
+    ],
+    "price": 12400,
+    "stock": 8,
+    "unit": "шт",
+    "description": "Амортизатор подвески кабины John Deere."
+  },
+  {
+    "id": "p100",
+    "sku": "0006551200",
+    "name": "Ролик направляющий гусеницы",
+    "category": "chassis",
+    "brand": "CLAAS",
+    "compatible": [
+      "LEXION TT",
+      "LEXION 8000"
+    ],
+    "price": 24600,
+    "stock": 4,
+    "unit": "шт",
+    "description": "Направляющий ролик гусеничного хода CLAAS."
+  },
+  {
+    "id": "p101",
+    "sku": "87548901",
+    "name": "Полуось передняя",
+    "category": "chassis",
+    "brand": "Case IH",
+    "compatible": [
+      "Magnum",
+      "Puma"
+    ],
+    "price": 67800,
+    "stock": 2,
+    "unit": "шт",
+    "description": "Передняя полуось тракторов Case IH Magnum/Puma."
+  },
+  {
+    "id": "p102",
+    "sku": "84179023",
+    "name": "Ступица колеса",
+    "category": "chassis",
+    "brand": "Case IH",
+    "compatible": [
+      "Steiger",
+      "Quadtrac"
+    ],
+    "price": 89500,
+    "stock": 1,
+    "unit": "шт",
+    "description": "Ступица ведущего колеса Case IH Steiger/Quadtrac."
+  },
+  {
+    "id": "p103",
+    "sku": "87305678",
+    "name": "Амортизатор моста",
+    "category": "chassis",
+    "brand": "New Holland",
+    "compatible": [
+      "T7",
+      "T8"
+    ],
+    "price": 15600,
+    "stock": 5,
+    "unit": "шт",
+    "description": "Амортизатор переднего моста New Holland T7/T8."
+  },
+  {
+    "id": "p104",
+    "sku": "70-2301015",
+    "name": "Полуось задняя",
+    "category": "chassis",
+    "brand": "МТЗ",
+    "compatible": [
+      "80",
+      "82.1"
+    ],
+    "price": 18500,
+    "stock": 4,
+    "unit": "шт",
+    "description": "Задняя полуось трактора МТЗ-80/82."
+  },
+  {
+    "id": "p105",
+    "sku": "70-3103015",
+    "name": "Шестерня ВОМ",
+    "category": "chassis",
+    "brand": "МТЗ",
+    "compatible": [
+      "80",
+      "82.1",
+      "1221"
+    ],
+    "price": 4200,
+    "stock": 12,
+    "unit": "шт",
+    "description": "Шестерня привода ВОМ МТЗ."
+  },
+  {
+    "id": "p106",
+    "sku": "X770245600",
+    "name": "Сайлентблок кабины",
+    "category": "chassis",
+    "brand": "Fendt",
+    "compatible": [
+      "700 Vario",
+      "800 Vario",
+      "900 Vario"
+    ],
+    "price": 8900,
+    "stock": 10,
+    "unit": "шт",
+    "description": "Сайлентблок крепления кабины Fendt Vario."
+  },
+  {
+    "id": "p107",
+    "sku": "ACX1692100",
+    "name": "Ролик соломотряса",
+    "category": "chassis",
+    "brand": "Ростсельмаш",
+    "compatible": [
+      "ACROS",
+      "VECTOR"
+    ],
+    "price": 2750,
+    "stock": 20,
+    "unit": "шт",
+    "description": "Опорный ролик соломотряса Ростсельмаш."
+  },
+  {
+    "id": "p108",
+    "sku": "KK0157200",
+    "name": "Втулка балансира",
+    "category": "chassis",
+    "brand": "Krone",
+    "compatible": [
+      "Big X",
+      "BiG M"
+    ],
+    "price": 3450,
+    "stock": 14,
+    "unit": "шт",
+    "description": "Втулка балансира ходовой части Krone."
+  },
+  {
+    "id": "p109",
+    "sku": "0.014.1100.0",
+    "name": "Каток опорный",
+    "category": "chassis",
+    "brand": "ROPA",
+    "compatible": [
+      "euro-Tiger",
+      "Panther 2"
+    ],
+    "price": 31200,
+    "stock": 3,
+    "unit": "шт",
+    "description": "Опорный каток ходовой системы ROPA."
+  },
+  {
+    "id": "p110",
+    "sku": "RE541670",
+    "name": "Радиатор охлаждения",
+    "category": "cooling",
+    "brand": "John Deere",
+    "compatible": [
+      "6R",
+      "7R"
+    ],
+    "price": 87500,
+    "stock": 2,
+    "unit": "шт",
+    "description": "Основной радиатор системы охлаждения John Deere 6R/7R."
+  },
+  {
+    "id": "p111",
+    "sku": "RE523393",
+    "name": "Интеркулер",
+    "category": "cooling",
+    "brand": "John Deere",
+    "compatible": [
+      "6R",
+      "7R",
+      "8R"
+    ],
+    "price": 65400,
+    "stock": 2,
+    "unit": "шт",
+    "description": "Радиатор наддувочного воздуха (интеркулер) John Deere."
+  },
+  {
+    "id": "p112",
+    "sku": "AL176210",
+    "name": "Вентилятор охлаждения",
+    "category": "cooling",
+    "brand": "John Deere",
+    "compatible": [
+      "6R",
+      "6M"
+    ],
+    "price": 18900,
+    "stock": 5,
+    "unit": "шт",
+    "description": "Вентилятор системы охлаждения John Deere."
+  },
+  {
+    "id": "p113",
+    "sku": "0006567800",
+    "name": "Радиатор масла",
+    "category": "cooling",
+    "brand": "CLAAS",
+    "compatible": [
+      "LEXION",
+      "JAGUAR"
+    ],
+    "price": 72400,
+    "stock": 2,
+    "unit": "шт",
+    "description": "Масляный радиатор гидросистемы CLAAS."
+  },
+  {
+    "id": "p114",
+    "sku": "0006567900",
+    "name": "Радиатор охлаждения двигателя",
+    "category": "cooling",
+    "brand": "CLAAS",
+    "compatible": [
+      "LEXION 700",
+      "LEXION 8000"
+    ],
+    "price": 112000,
+    "stock": 1,
+    "unit": "шт",
+    "description": "Основной радиатор двигателя CLAAS LEXION."
+  },
+  {
+    "id": "p115",
+    "sku": "87551234",
+    "name": "Радиатор охлаждения",
+    "category": "cooling",
+    "brand": "Case IH",
+    "compatible": [
+      "Puma",
+      "Magnum"
+    ],
+    "price": 79800,
+    "stock": 2,
+    "unit": "шт",
+    "description": "Радиатор охлаждения Case IH Puma/Magnum."
+  },
+  {
+    "id": "p116",
+    "sku": "87306789",
+    "name": "Патрубок системы охлаждения",
+    "category": "cooling",
+    "brand": "New Holland",
+    "compatible": [
+      "T6",
+      "T7",
+      "CR"
+    ],
+    "price": 2450,
+    "stock": 20,
+    "unit": "шт",
+    "description": "Верхний патрубок радиатора New Holland."
+  },
+  {
+    "id": "p117",
+    "sku": "70-1301015",
+    "name": "Радиатор водяной",
+    "category": "cooling",
+    "brand": "МТЗ",
+    "compatible": [
+      "80",
+      "82.1"
+    ],
+    "price": 18500,
+    "stock": 6,
+    "unit": "шт",
+    "description": "Водяной радиатор трактора МТЗ-80/82."
+  },
+  {
+    "id": "p118",
+    "sku": "70-1303010",
+    "name": "Термостат",
+    "category": "cooling",
+    "brand": "МТЗ",
+    "compatible": [
+      "Д-240",
+      "Д-243",
+      "Д-245"
+    ],
+    "price": 980,
+    "stock": 35,
+    "unit": "шт",
+    "description": "Термостат системы охлаждения двигателей Д-240/243/245."
+  },
+  {
+    "id": "p119",
+    "sku": "X770250300",
+    "name": "Радиатор кондиционера",
+    "category": "cooling",
+    "brand": "Fendt",
+    "compatible": [
+      "700 Vario",
+      "800 Vario"
+    ],
+    "price": 45600,
+    "stock": 3,
+    "unit": "шт",
+    "description": "Конденсатор кондиционера кабины Fendt."
+  },
+  {
+    "id": "p120",
+    "sku": "ACX1701200",
+    "name": "Радиатор охлаждения",
+    "category": "cooling",
+    "brand": "Ростсельмаш",
+    "compatible": [
+      "TORUM",
+      "ACROS",
+      "RSM 161"
+    ],
+    "price": 68500,
+    "stock": 2,
+    "unit": "шт",
+    "description": "Радиатор системы охлаждения комбайнов Ростсельмаш."
+  },
+  {
+    "id": "p121",
+    "sku": "KK0159500",
+    "name": "Интеркулер",
+    "category": "cooling",
+    "brand": "Krone",
+    "compatible": [
+      "Big X",
+      "BiG X 1180"
+    ],
+    "price": 58900,
+    "stock": 2,
+    "unit": "шт",
+    "description": "Интеркулер двигателя Krone Big X."
+  }
+]

@@ -1,88 +1,75 @@
-# AI Content Helper
+# AgroParts
 
-Помощник для генерации контента: посты для Telegram, идеи, промпты и короткие тексты под ваш тон.
+Каталог запчастей для сельхозтехники.
 
+**Главное — мобильное приложение на телефоне** (`mobile/`).  
+Telegram-бот в корне репозитория — дополнительный канал, не обязателен.
+
+![Expo](https://img.shields.io/badge/Expo-React%20Native-000020)
 ![Python](https://img.shields.io/badge/Python-3.11+-blue)
-![Content](https://img.shields.io/badge/AI-Content-ff69b4)
-![Telegram](https://img.shields.io/badge/Telegram-Bot-26A5E4)
+![Agro](https://img.shields.io/badge/AgroParts-Catalog-2e7d32)
 
 ---
 
-## 🎯 Задача
+## Приложение на телефоне
 
-Ускорить создание контента для канала и клиентов:
-- генерация постов по теме;
-- несколько вариантов текста на выбор;
-- готовые шаблоны промптов;
-- единый стиль «коротко и по делу».
+Папка `mobile/` — Expo / React Native:
 
----
+- каталог, категории и бренды
+- поиск по артикулу
+- распознавание бирок по фото
+- корзина и заявка с телефоном
 
-## 🧰 Стек технологий
+### Как открыть
 
-- **Python 3.11+**
-- **aiogram 3**
-- **OpenAI API**
-- **Шаблоны промптов** в `prompts/`
-- **python-dotenv**
-
----
-
-## 🧩 Функциональные блоки
-
-1. **Команда /post** — пост для Telegram по теме
-2. **Команда /ideas** — 5 идей для контента
-3. **Команда /prompt** — улучшить пользовательский промпт
-4. **Шаблоны** — системные инструкции под задачи
-5. **Тон голоса** — деловой / дружелюбный / экспертный
-
----
-
-## 🖼️ Скриншоты
-
-![Генерация поста](docs/screenshot-post.png)
-
-![Идеи для контента](docs/screenshot-ideas.png)
-
----
-
-## 🚀 Инструкция по запуску
+1. Установите [Expo Go](https://expo.dev/go) на телефон.
+2. На компьютере:
 
 ```bash
-git clone https://github.com/rustamilyasov73-cpu/ai-content-helper.git
-cd ai-content-helper
+cd mobile
+npm install
+npx expo start
+```
+
+3. Отсканируйте QR-код в Expo Go (Android) или камерой (iPhone).
+
+Подробнее: [`mobile/README.md`](mobile/README.md).
+
+Для фото-распознавания укажите OpenAI API ключ во вкладке **Настройки** приложения.
+
+---
+
+## Telegram-бот (опционально)
+
+```bash
 python -m venv .venv
-.venv\Scripts\activate
+source .venv/bin/activate
 pip install -r requirements.txt
-copy .env.example .env
+cp .env.example .env   # BOT_TOKEN, OPENAI_API_KEY
 python bot.py
 ```
 
-Примеры:
-- `/post Как AI помогает малому бизнесу`
-- `/ideas канал про автоматизацию`
-- `/prompt напиши пост про ботов`
+Тесты бота: `pytest -q`
 
 ---
 
-## 📁 Структура
+## Структура
 
 ```text
 ai-content-helper/
-├── bot.py
-├── config.py
-├── prompts/
-│   └── templates.py
+├── mobile/           ← приложение для телефона
+│   ├── app/
+│   ├── src/
+│   ├── data/parts.json
+│   └── README.md
+├── bot.py            ← Telegram-бот (опционально)
+├── data/parts.json
 ├── services/
-│   └── llm.py
-├── docs/
-├── requirements.txt
-├── .env.example
 └── README.md
 ```
 
 ---
 
-## 👤 Автор
+## Автор
 
 **Рустам** · [@Rust_prompt](https://t.me/Rust_prompt) · [GitHub](https://github.com/rustamilyasov73-cpu)

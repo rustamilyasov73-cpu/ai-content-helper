@@ -8,6 +8,11 @@ const CATEGORY_LABELS = {
   chains: 'Цепи',
   chassis: 'Ходовая',
   cooling: 'Охлаждение',
+  engine: 'Двигатель',
+  transmission: 'Трансмиссия',
+  seals: 'Уплотнения',
+  lighting: 'Освещение',
+  cabin: 'Кабина',
 };
 
 const SKU_PATTERN =
@@ -125,9 +130,21 @@ function searchParts(query, limit = 30) {
     const nameN = normalize(part.name);
     const brandN = normalize(part.brand);
     const haystack = normalize(
-      [part.sku, part.name, part.brand, categoryLabel(part.category), ...(part.compatible || []), part.description].join(
-        ' ',
-      ),
+      [
+        part.sku,
+        part.oem,
+        part.code_1c,
+        part.barcode,
+        part.name,
+        part.full_name,
+        part.brand,
+        part.manufacturer,
+        categoryLabel(part.category),
+        ...(part.compatible || []),
+        ...(part.analogues || []),
+        part.description,
+        JSON.stringify(part.specs || {}),
+      ].join(' '),
     );
     let score = 0;
     if (q === skuN || qCompact === skuC) score += 120;
@@ -200,7 +217,14 @@ function placeOrder() {
     .map((i) => {
       const p = getPart(i.partId);
       if (!p) return null;
-      return { partId: p.id, sku: p.sku, name: p.name, qty: i.qty, price: p.price };
+      return {
+        partId: p.id,
+        sku: p.sku,
+        code_1c: p.code_1c || '',
+        name: p.name,
+        qty: i.qty,
+        price: p.price,
+      };
     })
     .filter(Boolean);
   const order = {
@@ -216,8 +240,16 @@ function placeOrder() {
   state.phone = '';
   state.comment = '';
   save();
-  toast(`Заявка ${order.id} оформлена`);
+  toast(`Заявка ${order.id} оформлена → 1С`);
   render();
+  // отправка в API / outbox 1С (если сервер запущен)
+  fetch('/api/orders', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(order),
+  }).catch(() => {
+    /* локально заявка уже сохранена */
+  });
 }
 
 function toast(msg) {
@@ -348,9 +380,13 @@ function fileToBase64(file) {
 function partRow(part) {
   return `
     <button class="row" type="button" data-go="#/part/${part.id}">
-      <div class="sku">${escapeHtml(part.sku)}</div>
+      <div class="sku">${escapeHtml(part.sku)}${part.code_1c ? ` · 1С ${escapeHtml(part.code_1c)}` : ''}</div>
       <div class="name">${escapeHtml(part.name)}</div>
-      <div class="meta">${escapeHtml(part.brand)} · ${escapeHtml(categoryLabel(part.category))}</div>
+      <div class="meta">${escapeHtml(part.brand)} · ${escapeHtml(categoryLabel(part.category))}${
+        part.manufacturer && part.manufacturer !== part.brand
+          ? ` · ${escapeHtml(part.manufacturer)}`
+          : ''
+      }</div>
       <div class="footer">
         <span class="price">${money(part.price)}</span>
         <span class="stock ${part.stock > 0 ? 'ok' : 'bad'}">${
@@ -393,7 +429,7 @@ function renderCatalog() {
   return `
     <header class="hero">
       <h1>AgroParts</h1>
-      <p>Запчасти для тракторов и комбайнов</p>
+      <p>Каталог ${state.parts.length} позиций · обмен с 1С</p>
     </header>
     <div class="chips">
       <button class="chip ${state.filter.type === 'all' ? 'active' : ''}" data-filter='{"type":"all"}'>Все</button>
@@ -549,11 +585,16 @@ function renderSettings() {
     <div class="topbar">Настройки</div>
     <div class="panel">
       <h2 style="margin:0 0 8px;font-size:22px;">AgroParts на телефоне</h2>
-      <p class="muted">Каталог и корзина работают без интернета на этом устройстве. Для распознавания бирок по фото нужен OpenAI API ключ.</p>
-      <label style="display:block;margin:12px 0 6px;font-weight:600;">OpenAI API Key</label>
+      <p class="muted">В каталоге ${state.parts.length} позиций. Заявки уходят в outbox 1С (код номенклатуры, НДС, склад).</p>
+      <label style="display:block;margin:12px 0 6px;font-weight:600;">OpenAI API Key (фото)</label>
       <input class="input" id="apiKeyInput" type="password" placeholder="sk-..." value="${escapeAttr(state.apiKey)}" />
       <div style="height:12px"></div>
       <button class="btn primary" id="saveKeyBtn" type="button">Сохранить</button>
+      <div class="card" style="margin-top:16px;">
+        <strong>1С:Бухгалтерия</strong>
+        <p class="muted" style="margin:8px 0 0;">Импорт номенклатуры: <code>python scripts/sync_1c.py import-file data/1c/nomenclature.sample.json</code></p>
+        <p class="muted" style="margin:8px 0 0;">Заявки из приложения пишутся в <code>data/1c/orders_outbox/</code> и через API <code>/api/orders</code>.</p>
+      </div>
     </div>
     ${tabbar('settings')}
   `;
@@ -564,6 +605,9 @@ function renderPart(id) {
   if (!part) {
     return `<div class="topbar"><button class="back" data-go="#/">←</button>Деталь</div><div class="hint">Деталь не найдена</div>${tabbar('catalog')}`;
   }
+  const specs = Object.entries(part.specs || {})
+    .map(([k, v]) => `<div class="muted">${escapeHtml(k)}: <strong>${escapeHtml(v)}</strong></div>`)
+    .join('');
   return `
     <div class="topbar"><button class="back" data-go="#/">←</button>${escapeHtml(part.sku)}</div>
     <div class="panel detail">
@@ -573,11 +617,35 @@ function renderPart(id) {
       <div class="price" style="font-size:24px;margin-top:10px;">${money(part.price)} / ${escapeHtml(part.unit)}</div>
       <div class="stock ${part.stock > 0 ? 'ok' : 'bad'}" style="margin-top:6px;">
         ${part.stock > 0 ? `В наличии: ${part.stock} ${part.unit}` : 'Нет в наличии'}
+        ${part.warehouse ? ` · ${escapeHtml(part.warehouse)}` : ''}
       </div>
+
+      <div class="label">Учёт 1С</div>
+      <div>Код 1С: <strong>${escapeHtml(part.code_1c || '—')}</strong></div>
+      <div>OEM: <strong>${escapeHtml(part.oem || part.sku)}</strong></div>
+      <div>Штрихкод: <strong>${escapeHtml(part.barcode || '—')}</strong></div>
+      <div>НДС: <strong>${escapeHtml(String(part.vat_rate ?? 20))}%</strong></div>
+      <div>ОКЕИ: <strong>${escapeHtml(part.unit_okei || '—')}</strong></div>
+      ${part.price_purchase ? `<div>Закупка: <strong>${money(part.price_purchase)}</strong></div>` : ''}
+
+      <div class="label">Производитель</div>
+      <div>${escapeHtml(part.manufacturer || part.brand)}</div>
+
       <div class="label">Совместимость</div>
-      <div>${escapeHtml((part.compatible || []).join(', '))}</div>
+      <div>${escapeHtml((part.compatible || []).join(', ') || '—')}</div>
+
+      ${
+        (part.analogues || []).length
+          ? `<div class="label">Аналоги</div><div>${escapeHtml(part.analogues.join(', '))}</div>`
+          : ''
+      }
+
+      ${specs ? `<div class="label">Характеристики</div>${specs}` : ''}
+
       <div class="label">Описание</div>
       <div>${escapeHtml(part.description || '')}</div>
+      ${part.weight_kg ? `<div class="muted" style="margin-top:8px;">Вес: ${escapeHtml(String(part.weight_kg))} кг</div>` : ''}
+
       <div style="height:16px"></div>
       <button class="btn primary" id="addBtn" type="button" data-add="${part.id}" ${
         part.stock <= 0 ? 'disabled style="opacity:.45"' : ''

@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 /**
- * Static host for Expo web export with clean SPA-like routes.
- * Maps /search -> search.html, /part/p001 -> part/[id].html, etc.
+ * Static host for AgroParts www + proxy /api -> API :8100
  */
 const http = require('http');
 const fs = require('fs');
@@ -10,6 +9,7 @@ const { URL } = require('url');
 
 const ROOT = process.env.WEB_ROOT || path.join(__dirname, '..', 'www');
 const PORT = Number(process.env.PORT || 8090);
+const API_PORT = Number(process.env.API_PORT || 8100);
 
 const MIME = {
   '.html': 'text/html; charset=utf-8',
@@ -48,14 +48,59 @@ function resolveFile(urlPath) {
   if (fs.existsSync(candidate) && fs.statSync(candidate).isFile()) return candidate;
   if (fs.existsSync(candidate + '.html')) return candidate + '.html';
   if (fs.existsSync(path.join(candidate, 'index.html'))) return path.join(candidate, 'index.html');
-
-  // SPA / hash app fallback
   return path.join(ROOT, 'index.html');
+}
+
+function proxyApi(req, res, apiPath) {
+  const chunks = [];
+  req.on('data', (c) => chunks.push(c));
+  req.on('end', () => {
+    const body = Buffer.concat(chunks);
+    const headers = { ...req.headers, host: `127.0.0.1:${API_PORT}` };
+    delete headers['content-length'];
+    const upstream = http.request(
+      {
+        hostname: '127.0.0.1',
+        port: API_PORT,
+        path: apiPath,
+        method: req.method,
+        headers,
+      },
+      (up) => {
+        res.writeHead(up.statusCode || 502, {
+          'Access-Control-Allow-Origin': '*',
+          'Content-Type': up.headers['content-type'] || 'application/json',
+        });
+        up.pipe(res);
+      },
+    );
+    upstream.on('error', () => {
+      send(res, 502, JSON.stringify({ error: 'API недоступен. Запустите: python api/server.py' }), {
+        'Content-Type': 'application/json; charset=utf-8',
+        'Access-Control-Allow-Origin': '*',
+      });
+    });
+    if (body.length) upstream.write(body);
+    upstream.end();
+  });
 }
 
 const server = http.createServer((req, res) => {
   try {
     const u = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
+    if (u.pathname === '/api' || u.pathname.startsWith('/api/')) {
+      if (req.method === 'OPTIONS') {
+        res.writeHead(204, {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        });
+        return res.end();
+      }
+      const apiPath = u.pathname.replace(/^\/api/, '') || '/';
+      return proxyApi(req, res, apiPath + u.search);
+    }
+
     const filePath = resolveFile(u.pathname);
     if (!filePath || !fs.existsSync(filePath)) {
       return send(res, 404, 'Not found', { 'Content-Type': 'text/plain; charset=utf-8' });
@@ -72,5 +117,5 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(PORT, '0.0.0.0', () => {
-  console.log(`AgroParts web server on http://0.0.0.0:${PORT} root=${ROOT}`);
+  console.log(`AgroParts web server on http://0.0.0.0:${PORT} root=${ROOT} api->:${API_PORT}`);
 });

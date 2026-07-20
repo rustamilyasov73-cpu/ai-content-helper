@@ -15,3 +15,5 @@ web-build/
 *.p12
 *.mobileprovision
 *.orig.*
+data/1c/orders_outbox/*.json
+data/1c/orders_sent/*.json

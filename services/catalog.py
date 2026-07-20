@@ -1,4 +1,4 @@
-"""Каталог запчастей: загрузка, поиск, категории."""
+"""Каталог запчастей: загрузка, поиск, категории, бренды."""
 
 from __future__ import annotations
 
@@ -93,9 +93,22 @@ def load_parts(path: Path | None = None) -> list[Part]:
 
 class Catalog:
     def __init__(self, parts: Iterable[Part] | None = None) -> None:
-        self._parts = list(parts) if parts is not None else load_parts()
+        self._parts: list[Part] = []
+        self._by_id: dict[str, Part] = {}
+        self._by_sku: dict[str, Part] = {}
+        if parts is not None:
+            self._set_parts(list(parts))
+        else:
+            self.reload()
+
+    def _set_parts(self, parts: list[Part]) -> None:
+        self._parts = parts
         self._by_id = {p.id: p for p in self._parts}
         self._by_sku = {_normalize(p.sku): p for p in self._parts}
+
+    def reload(self, path: Path | None = None) -> int:
+        self._set_parts(load_parts(path))
+        return len(self._parts)
 
     def all(self) -> list[Part]:
         return list(self._parts)
@@ -116,8 +129,18 @@ class Catalog:
                 result.append((key, key, count))
         return result
 
+    def brands(self) -> list[tuple[str, int]]:
+        counts: dict[str, int] = {}
+        for part in self._parts:
+            counts[part.brand] = counts.get(part.brand, 0) + 1
+        return sorted(counts.items(), key=lambda item: item[0].lower())
+
     def by_category(self, category: str) -> list[Part]:
         return [p for p in self._parts if p.category == category]
+
+    def by_brand(self, brand: str) -> list[Part]:
+        needle = _normalize(brand)
+        return [p for p in self._parts if _normalize(p.brand) == needle]
 
     def search(self, query: str, limit: int = 10) -> list[Part]:
         q = _normalize(query)

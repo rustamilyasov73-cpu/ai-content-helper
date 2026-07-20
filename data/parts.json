@@ -142,5 +142,41 @@
     "stock": 1,
     "unit": "шт",
     "description": "Радиатор системы охлаждения для комбайнов New Holland CR/CX."
+  },
+  {
+    "id": "p013",
+    "sku": "RE541922",
+    "name": "Фильтр гидравлический",
+    "category": "filters",
+    "brand": "John Deere",
+    "compatible": ["6R", "7R"],
+    "price": 6750,
+    "stock": 9,
+    "unit": "шт",
+    "description": "Фильтр гидравлической системы John Deere 6R/7R."
+  },
+  {
+    "id": "p014",
+    "sku": "70-1505040",
+    "name": "Диск сцепления",
+    "category": "chassis",
+    "brand": "МТЗ",
+    "compatible": ["80", "82.1"],
+    "price": 12800,
+    "stock": 4,
+    "unit": "шт",
+    "description": "Ведомый диск сцепления для тракторов МТЗ-80/82."
+  },
+  {
+    "id": "p015",
+    "sku": "0007466130",
+    "name": "Ролик натяжителя",
+    "category": "belts",
+    "brand": "CLAAS",
+    "compatible": ["LEXION"],
+    "price": 9320,
+    "stock": 6,
+    "unit": "шт",
+    "description": "Ролик натяжителя приводного ремня CLAAS LEXION."
   }
 ]

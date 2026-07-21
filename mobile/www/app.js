@@ -344,7 +344,7 @@ function parseVisionJson(content) {
 }
 
 async function recognizeImage(file) {
-  if (!state.apiKey.trim()) {
+  if (!normalizeOpenAiKey(state.apiKey)) {
     state.photo.result = { error: 'Укажите OpenAI API ключ в Настройках' };
     render();
     return;
@@ -515,7 +515,7 @@ function renderPhoto() {
     <div class="panel">
       <h2 style="margin:0 0 6px;font-size:20px;">Снимите бирку или шильдик</h2>
       <p class="muted" style="margin:0;">Приложение распознает артикул и найдёт деталь в каталоге</p>
-      ${!state.apiKey ? '<p class="warn">Сначала укажите OpenAI API ключ во вкладке Настройки</p>' : ''}
+      ${!normalizeOpenAiKey(state.apiKey) ? '<p class="warn">Сначала сохраните OpenAI API ключ во вкладке Настройки</p>' : ''}
       <div class="actions">
         <label class="btn primary" style="text-align:center;">
           Камера
@@ -615,22 +615,48 @@ function renderCart() {
   `;
 }
 
+function maskKey(key) {
+  const k = String(key || '').trim();
+  if (!k) return '';
+  if (k.length <= 12) return '••••••••';
+  return `${k.slice(0, 7)}…${k.slice(-4)}`;
+}
+
+function normalizeOpenAiKey(raw) {
+  return String(raw || '')
+    .trim()
+    .replace(/^["']+|["']+$/g, '')
+    .replace(/\s+/g, '');
+}
+
 function renderSettings() {
+  const hasKey = Boolean(normalizeOpenAiKey(state.apiKey));
   return `
     <div class="topbar">Настройки</div>
     <div class="panel">
-      <h2 style="margin:0 0 8px;font-size:22px;">AgroParts</h2>
-      <p class="muted">Локальный каталог: ${state.parts.length} поз. Обновите с сервера после синхронизации 1С.</p>
-      <label style="display:block;margin:12px 0 6px;font-weight:600;">URL API (1С через AgroParts)</label>
+      <h2 style="margin:0 0 8px;font-size:22px;">Настройки</h2>
+      <p class="muted">Каталог: ${state.parts.length} поз. · OpenAI: ${
+        hasKey ? `установлен (${escapeHtml(maskKey(state.apiKey))})` : 'не установлен'
+      }</p>
+
+      <div class="settings-card">
+        <strong>OpenAI API Key</strong>
+        <p class="muted" style="margin:6px 0 10px;">Для вкладки «Фото». Ключ с platform.openai.com, начинается с sk-</p>
+        <input class="input" id="apiKeyInput" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="sk-proj-... или sk-..." value="${escapeAttr(state.apiKey)}" />
+        <div style="height:10px"></div>
+        <button class="btn primary" id="saveKeyBtn" type="button">Сохранить OpenAI ключ</button>
+        ${hasKey ? '<div style="height:8px"></div><button class="btn ghost" id="clearKeyBtn" type="button">Удалить ключ</button>' : ''}
+      </div>
+
+      <label style="display:block;margin:16px 0 6px;font-weight:600;">URL API (1С через AgroParts)</label>
       <input class="input" id="apiUrlInput" type="url" placeholder="http://192.168.1.10:8080" value="${escapeAttr(state.apiBaseUrl)}" />
-      <label style="display:block;margin:12px 0 6px;font-weight:600;">API Token</label>
-      <input class="input" id="apiTokenInput" type="password" placeholder="необязательно" value="${escapeAttr(state.apiToken)}" />
-      <label style="display:block;margin:12px 0 6px;font-weight:600;">OpenAI API Key</label>
-      <input class="input" id="apiKeyInput" type="password" placeholder="sk-..." value="${escapeAttr(state.apiKey)}" />
+      <label style="display:block;margin:12px 0 6px;font-weight:600;">API Token сервера</label>
+      <input class="input" id="apiTokenInput" type="text" autocomplete="off" placeholder="необязательно (это не OpenAI ключ)" value="${escapeAttr(state.apiToken)}" />
       <div style="height:12px"></div>
-      <button class="btn primary" id="saveKeyBtn" type="button">Сохранить</button>
+      <button class="btn" id="saveAllBtn" type="button">Сохранить все настройки</button>
       <div style="height:10px"></div>
       <button class="btn" id="syncCatalogBtn" type="button">Обновить каталог с сервера</button>
+      <p class="muted" style="margin-top:14px;">Если ключ «не ставится»: вставьте в поле OpenAI (не в API Token) и нажмите «Сохранить OpenAI ключ».</p>
     </div>
     ${tabbar('settings')}
   `;
@@ -735,34 +761,64 @@ function bind() {
   const apiUrlInput = document.getElementById('apiUrlInput');
   const apiTokenInput = document.getElementById('apiTokenInput');
   const saveKeyBtn = document.getElementById('saveKeyBtn');
+  const saveAllBtn = document.getElementById('saveAllBtn');
+  const clearKeyBtn = document.getElementById('clearKeyBtn');
+
+  function readSettingsFromInputs() {
+    if (apiUrlInput) {
+      state.apiBaseUrl = apiUrlInput.value.trim().replace(/\/+$/, '');
+      localStorage.setItem('agroparts.api_base_url', state.apiBaseUrl);
+    }
+    if (apiTokenInput) {
+      state.apiToken = apiTokenInput.value.trim();
+      localStorage.setItem('agroparts.api_token', state.apiToken);
+    }
+  }
+
   if (saveKeyBtn) {
     saveKeyBtn.addEventListener('click', () => {
-      if (apiKeyInput) {
-        state.apiKey = apiKeyInput.value.trim();
+      const cleaned = normalizeOpenAiKey(apiKeyInput ? apiKeyInput.value : '');
+      if (!cleaned) return toast('Вставьте OpenAI ключ (sk-...)');
+      if (!cleaned.startsWith('sk-') || cleaned.length < 20) {
+        if (!confirm('Ключ необычный (ожидается sk-...). Сохранить всё равно?')) return;
+      }
+      try {
+        state.apiKey = cleaned;
         localStorage.setItem('agroparts.openai_api_key', state.apiKey);
+        toast(`OpenAI ключ сохранён: ${maskKey(cleaned)}`);
+        render();
+      } catch (e) {
+        toast(e.message || 'Не удалось сохранить ключ');
       }
-      if (apiUrlInput) {
-        state.apiBaseUrl = apiUrlInput.value.trim().replace(/\/+$/, '');
-        localStorage.setItem('agroparts.api_base_url', state.apiBaseUrl);
+    });
+  }
+  if (clearKeyBtn) {
+    clearKeyBtn.addEventListener('click', () => {
+      state.apiKey = '';
+      localStorage.removeItem('agroparts.openai_api_key');
+      toast('OpenAI ключ удалён');
+      render();
+    });
+  }
+  if (saveAllBtn) {
+    saveAllBtn.addEventListener('click', () => {
+      try {
+        readSettingsFromInputs();
+        if (apiKeyInput && apiKeyInput.value.trim()) {
+          state.apiKey = normalizeOpenAiKey(apiKeyInput.value);
+          localStorage.setItem('agroparts.openai_api_key', state.apiKey);
+        }
+        toast('Настройки сохранены');
+        render();
+      } catch (e) {
+        toast(e.message || 'Не удалось сохранить');
       }
-      if (apiTokenInput) {
-        state.apiToken = apiTokenInput.value.trim();
-        localStorage.setItem('agroparts.api_token', state.apiToken);
-      }
-      toast('Настройки сохранены');
     });
   }
   const syncCatalogBtn = document.getElementById('syncCatalogBtn');
   if (syncCatalogBtn) {
     syncCatalogBtn.addEventListener('click', () => {
-      if (apiUrlInput) {
-        state.apiBaseUrl = apiUrlInput.value.trim().replace(/\/+$/, '');
-        localStorage.setItem('agroparts.api_base_url', state.apiBaseUrl);
-      }
-      if (apiTokenInput) {
-        state.apiToken = apiTokenInput.value.trim();
-        localStorage.setItem('agroparts.api_token', state.apiToken);
-      }
+      readSettingsFromInputs();
       void refreshCatalogFromApi();
     });
   }

@@ -19,7 +19,7 @@ import { recognizePartPhoto } from '../../src/vision';
 
 export default function PhotoScreen() {
   useParts();
-  const { apiKey } = useSettings();
+  const { apiKey, hasOpenAiKey } = useSettings();
   const [preview, setPreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<PhotoRecognition | null>(null);
@@ -93,8 +93,8 @@ export default function PhotoScreen() {
         <Text style={styles.sub}>
           Приложение распознает артикул и найдёт деталь в каталоге
         </Text>
-        {!apiKey ? (
-          <Text style={styles.warn}>Сначала укажите OpenAI API ключ во вкладке Настройки</Text>
+        {!hasOpenAiKey ? (
+          <Text style={styles.warn}>Сначала сохраните OpenAI API ключ во вкладке Настройки</Text>
         ) : null}
       </View>
 

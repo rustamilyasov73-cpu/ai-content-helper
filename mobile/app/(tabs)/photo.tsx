@@ -15,6 +15,7 @@ import { useSettings } from '../../src/context/SettingsContext';
 import { go } from '../../src/nav';
 import { colors, spacing } from '../../src/theme';
 import type { Part, PhotoRecognition } from '../../src/types';
+import { APP_BUILD_LABEL, VISION_PROVIDER } from '../../src/version';
 import { recognizePartPhoto } from '../../src/vision';
 
 export default function PhotoScreen() {
@@ -91,7 +92,8 @@ export default function PhotoScreen() {
       <View style={styles.intro}>
         <Text style={styles.title}>Снимите бирку или шильдик</Text>
         <Text style={styles.sub}>
-          Приложение распознает артикул и найдёт деталь в каталоге
+          {APP_BUILD_LABEL}: распознавание через {VISION_PROVIDER}. Приложение найдёт деталь в
+          каталоге.
         </Text>
         {!hasOpenAiKey ? (
           <Text style={styles.warn}>Сначала сохраните OpenAI API ключ во вкладке Настройки</Text>

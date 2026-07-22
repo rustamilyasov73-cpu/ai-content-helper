@@ -19,6 +19,7 @@ import {
   useSettings,
 } from '../../src/context/SettingsContext';
 import { colors, spacing } from '../../src/theme';
+import { APP_BUILD_LABEL, VISION_MODEL, VISION_PROVIDER } from '../../src/version';
 
 export default function SettingsScreen() {
   const parts = useParts();
@@ -165,18 +166,22 @@ export default function SettingsScreen() {
         keyboardDismissMode="on-drag"
       >
         <Text style={styles.title}>Настройки</Text>
+        <Text style={styles.version}>
+          {APP_BUILD_LABEL} · {VISION_PROVIDER} ({VISION_MODEL})
+        </Text>
         <Text style={styles.text}>
           Локальный каталог: {parts.length} поз.
           {hasOpenAiKey
             ? `\nOpenAI: установлен (${maskOpenAiKey(apiKey)})`
             : '\nOpenAI: не установлен — фото бирок не работает'}
+          {'\n'}Провайдер распознавания: только OpenAI (Gemini не используется).
         </Text>
 
         <View style={styles.box}>
           <Text style={styles.boxTitle}>OpenAI API Key</Text>
           <Text style={styles.text}>
             Нужен для вкладки «Фото». Скопируйте ключ с platform.openai.com и вставьте ниже.
-            Начинается с sk-
+            Начинается с sk-. Gemini / Google AI не поддерживаются.
           </Text>
           <TextInput
             value={draftKey}
@@ -277,6 +282,11 @@ const styles = StyleSheet.create({
     fontFamily: 'DMSans_700Bold',
     fontSize: 22,
     color: colors.ink,
+  },
+  version: {
+    fontFamily: 'DMSans_600SemiBold',
+    fontSize: 13,
+    color: colors.brand,
   },
   text: {
     fontFamily: 'DMSans_400Regular',

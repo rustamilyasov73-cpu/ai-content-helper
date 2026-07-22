@@ -1,3 +1,8 @@
+const APP_VERSION = '1.2.0';
+const APP_BUILD_LABEL = `AgroParts ${APP_VERSION}`;
+const VISION_PROVIDER = 'OpenAI Vision';
+const VISION_MODEL = 'gpt-4o-mini';
+
 const CATEGORY_LABELS = {
   filters: 'Фильтры',
   belts: 'Ремни',
@@ -365,7 +370,7 @@ async function recognizeImage(file) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: VISION_MODEL,
         temperature: 0,
         messages: [
           {
@@ -514,7 +519,7 @@ function renderPhoto() {
     <div class="topbar">Фото</div>
     <div class="panel">
       <h2 style="margin:0 0 6px;font-size:20px;">Снимите бирку или шильдик</h2>
-      <p class="muted" style="margin:0;">Приложение распознает артикул и найдёт деталь в каталоге</p>
+      <p class="muted" style="margin:0;">{APP_BUILD_LABEL}: распознавание через ${VISION_PROVIDER}. Приложение найдёт деталь в каталоге</p>
       ${!normalizeOpenAiKey(state.apiKey) ? '<p class="warn">Сначала сохраните OpenAI API ключ во вкладке Настройки</p>' : ''}
       <div class="actions">
         <label class="btn primary" style="text-align:center;">
@@ -635,13 +640,14 @@ function renderSettings() {
     <div class="topbar">Настройки</div>
     <div class="panel">
       <h2 style="margin:0 0 8px;font-size:22px;">Настройки</h2>
+      <p class="version">${APP_BUILD_LABEL} · ${VISION_PROVIDER} (${VISION_MODEL})</p>
       <p class="muted">Каталог: ${state.parts.length} поз. · OpenAI: ${
         hasKey ? `установлен (${escapeHtml(maskKey(state.apiKey))})` : 'не установлен'
-      }</p>
+      } · провайдер: только OpenAI (Gemini не используется)</p>
 
       <div class="settings-card">
         <strong>OpenAI API Key</strong>
-        <p class="muted" style="margin:6px 0 10px;">Для вкладки «Фото». Ключ с platform.openai.com, начинается с sk-</p>
+        <p class="muted" style="margin:6px 0 10px;">Для вкладки «Фото». Ключ с platform.openai.com, начинается с sk-. Gemini / Google AI не поддерживаются.</p>
         <input class="input" id="apiKeyInput" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="sk-proj-... или sk-..." value="${escapeAttr(state.apiKey)}" />
         <div style="height:10px"></div>
         <button class="btn primary" id="saveKeyBtn" type="button">Сохранить OpenAI ключ</button>

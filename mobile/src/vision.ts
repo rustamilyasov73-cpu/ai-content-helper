@@ -1,4 +1,5 @@
 import type { PhotoRecognition } from './types';
+import { VISION_MODEL } from './version';
 
 const SKU_PATTERN =
   /(?<![A-Z0-9])([A-Z]{1,4}[-_ ]?\d{4,10}|\d+(?:\.\d+){1,4}|[A-Z]{2,}\d{3,}[A-Z0-9]*|\d{6,12})(?![A-Z0-9])/gi;
@@ -75,7 +76,7 @@ export async function recognizePartPhoto(
   base64Image: string,
   mimeType: string,
   apiKey: string,
-  model = 'gpt-4o-mini',
+  model = VISION_MODEL,
 ): Promise<PhotoRecognition> {
   if (!apiKey.trim()) {
     return {
